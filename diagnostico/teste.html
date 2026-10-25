@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0c0d">
+  <title>Teste de movimentos | Entre Linhas</title>
+  <meta name="description" content="Prévia interativa das transformações da questão 2 do Entre Linhas.">
+  <link rel="stylesheet" href="motion.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b0c0d'/%3E%3Cpath d='M24 15H16v34h8M40 15h8v34h-8' fill='none' stroke='%2363e6d5' stroke-width='5'/%3E%3C/svg%3E">
+</head>
+<body>
+<main id="entre-linhas-motion-demo" lang="pt-BR">
+  <header class="el-header">
+    <span class="el-brand"><span aria-hidden="true">[ ]</span> Entre Linhas</span>
+    <span class="el-kicker">Questão 02 · Prévia</span>
+    <a class="el-back" href="./index.html">Voltar ao início</a>
+  </header>
+  <div class="el-lines" aria-hidden="true"></div>
+  <h1>Uma forma. Quatro transformações.</h1>
+  <p class="el-intro">Explore o movimento de cada alternativa da questão 2. Após reproduzir, as animações se repetem automaticamente.</p>
+  <div class="el-toolbar">
+    <div class="el-legend">
+      <span><i class="el-dashed" aria-hidden="true"></i>Posição inicial</span>
+      <span><i class="el-solid" aria-hidden="true"></i>Transformação</span>
+    </div>
+    <button class="el-primary cursor-interaction" type="button" data-play-all>Reproduzir todas</button>
+  </div>
+  <div class="el-grid" data-panels></div>
+  <div class="el-unknown"><span class="el-letter">E</span><span>Não sei dizer.</span></div>
+  <p class="el-footnote">Eixos fixos · x para a direita · y para cima</p>
+</main>
+<script src="motion.js?v=5-loop"></script>
+</body>
+</html>

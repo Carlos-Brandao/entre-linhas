@@ -1,0 +1,40 @@
+(() => {
+'use strict';
+const topics=window.EL_TOPICS;
+const main=document.getElementById('main');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=i=>String(i+1).padStart(2,'0');
+const path=()=>location.hash.slice(1).split('/')[0]||'inicio';
+function graphic(type){
+  const head='<svg viewBox="0 0 80 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">';
+  const line='stroke="currentColor" stroke-width="1.7"';
+  if(type==='graph')return head+`<path d="M12 28L38 10 66 25 38 39 12 28M38 10V39" ${line}/><g fill="currentColor"><circle cx="12" cy="28" r="4"/><circle cx="38" cy="10" r="4"/><circle cx="66" cy="25" r="4"/><circle cx="38" cy="39" r="4"/></g></svg>`;
+  if(type==='line'||type==='curve'||type==='gradient')return head+`<path d="M10 5V40H73" stroke="#455154"/><path d="${type==='line'?'M15 34L65 10':type==='gradient'?'M16 8Q45 66 69 10':'M12 34Q35 36 44 20T70 8'}" ${line}/><g fill="#5ea7ff"><circle cx="24" cy="31" r="2"/><circle cx="38" cy="23" r="2"/><circle cx="52" cy="16" r="2"/></g></svg>`;
+  if(type==='multi')return head+`<path d="M18 10L50 24M18 24H50M18 38L50 24M56 24H72M67 19L72 24 67 29" ${line}/><g fill="#5ea7ff"><circle cx="14" cy="10" r="4"/><circle cx="14" cy="24" r="4"/><circle cx="14" cy="38" r="4"/></g><circle cx="53" cy="24" r="5" fill="currentColor"/></svg>`;
+  if(type==='matrix')return head+`<path d="M12 40V16H34V40Z" stroke="#5ea7ff" stroke-dasharray="3 3"/><path d="M46 40L56 16H78L68 40Z" ${line}/><path d="M36 28H46M42 24L46 28 42 32" ${line}/><g fill="currentColor"><circle cx="46" cy="40" r="2.5"/><circle cx="56" cy="16" r="2.5"/><circle cx="78" cy="16" r="2.5"/><circle cx="68" cy="40" r="2.5"/></g></svg>`;
+  if(type==='rotate')return head+`<path d="M14 40V18H36V40Z" stroke="#5ea7ff" stroke-dasharray="3 3"/><path d="M58 8L73 24 58 40 43 24Z" ${line}/><path d="M28 12Q40 2 52 8M47 6L52 8 50 13" ${line}/><circle cx="58" cy="24" r="2.5" fill="currentColor"/></svg>`;
+  if(type==='vector')return head+`<path d="M15 4V40H72" stroke="#455154"/><path d="M15 40L61 12M49 13L61 12 60 24" ${line}/><path d="M15 40L35 8 60 34Z" stroke="#5ea7ff" stroke-dasharray="3 3"/></svg>`;
+  return head+`<path d="M16 5H9V42H16M63 5H70V42H63" ${line}/><g fill="currentColor"><rect x="22" y="11" width="8" height="8" rx="1"/><rect x="37" y="11" width="8" height="8" rx="1"/><rect x="52" y="11" width="8" height="8" rx="1"/><rect x="22" y="28" width="8" height="8" rx="1"/><rect x="37" y="28" width="8" height="8" rx="1"/><rect x="52" y="28" width="8" height="8" rx="1"/></g></svg>`;
+}
+const topicCards=()=>`<div class="topic-grid">${topics.map((t,i)=>`<a class="topic-card" href="#${t.id}"><div class="card-number">${num(i)}${graphic(t.symbol)}</div><h3>${t.title}</h3><p>${t.description}</p><span class="tag">3 demonstrações · quiz</span></a>`).join('')}</div>`;
+function navigation(){document.getElementById('navigation').innerHTML=`<p class="nav-section">Entre Linhas</p><a class="nav-link" href="#inicio">Visão geral</a><a class="nav-link" href="#sobre">Quem somos</a><p class="nav-section">Álgebra UNIFOR</p>${topics.map((t,i)=>`<a class="nav-link" href="#${t.id}"><span class="num">${num(i)}</span><span>${t.title}</span></a>`).join('')}<p class="nav-section">Da teoria à prática</p><a class="nav-link" href="#areas">Áreas e casos de uso</a><a class="nav-link" href="#aulas">Aulas gravadas</a><a class="nav-link" href="#diagnostico">Quiz diagnóstico</a>`;}
+function overview(){return `<div class="intro"><span class="eyebrow">Para alunos de Computação · Álgebra UNIFOR</span><h1>A teoria faz sentido<br>quando você <em>vê acontecer.</em></h1><p class="lead">Você estuda a teoria na cadeira de Álgebra Linear. Aqui você vê onde ela aparece na Computação: mude os valores, observe os resultados e descubra o que cada conceito permite construir.</p><div class="stats"><span><strong>09</strong>conteúdos</span><span><strong>27</strong>demonstrações</span><span><strong>09</strong>quizzes de revisão</span></div><div class="actions"><a class="button primary" href="#diagnostico">Faça o termômetro</a><a class="button secondary" href="#numpy">Começar por NumPy</a></div></div><section aria-labelledby="topics-title"><div class="section-head"><h2 id="topics-title">Conteúdos abordados</h2><span>Escolha por onde começar</span></div>${topicCards()}</section><section class="feature"><div class="feature-copy"><span class="eyebrow">Uma ideia, muitas conexões</span><h2>O que uma matriz<br>tem a ver com uma rota?</h2><p>As conexões de uma rede podem ser registradas em uma matriz. Essa representação abre caminho para estudar rotas, relações e relevância.</p><a class="button primary" href="#grafos">Explorar grafos</a></div><div class="feature-visual"><svg viewBox="0 0 440 255" role="img" aria-label="Grafo A conectado a B e C, e sua matriz de adjacência"><g stroke="#2a2d30"><path d="M0 64H440M0 128H440M0 192H440M80 0V255M160 0V255M240 0V255M320 0V255"/></g><g stroke="#63e6d5" stroke-width="2"><path d="M68 124L164 66M68 124L164 188"/></g><g fill="#142322" stroke="#63e6d5" stroke-width="2"><circle cx="68" cy="124" r="23"/><circle cx="164" cy="66" r="23"/><circle cx="164" cy="188" r="23"/></g><g fill="#f4f5f2" text-anchor="middle" font-family="monospace" font-size="16"><text x="68" y="130">A</text><text x="164" y="72">B</text><text x="164" y="194">C</text></g><path d="M255 78H245V178H255M383 78H393V178H383" fill="none" stroke="#63e6d5" stroke-width="2"/><g fill="#a8adb3" font-family="monospace" font-size="18" text-anchor="middle"><text x="319" y="105" fill="#63e6d5">0  1  1</text><text x="319" y="134">1  0  0</text><text x="319" y="163">1  0  0</text><text x="319" y="216" font-size="12">matriz de adjacência</text></g></svg></div></section><section class="section"><h2>Um caminho para aprender</h2><div class="steps"><div class="step"><small>01 · ENTENDA</small><p>Comece por uma explicação curta e uma representação visual.</p></div><div class="step"><small>02 · EXPERIMENTE</small><p>Altere os controles e descubra o que muda em cada aplicação.</p></div><div class="step"><small>03 · CONECTE</small><p>Veja o código, consulte os materiais e teste o que aprendeu.</p></div></div></section>`;}
+let activeRoute = null;
+function scrollSection(){const part=location.hash.slice(1).split('/')[1];if(part){requestAnimationFrame(()=>document.getElementById(part)?.scrollIntoView({block:'start'}));}else window.scrollTo(0,0);}
+function render(){
+ const id=path(); const page=window.EL_PAGES.render(id);
+ main.innerHTML=page?page.html:overview();
+ document.querySelectorAll('.nav-link').forEach(a=>a.setAttribute('aria-current',a.hash===`#${id}`?'page':'false'));
+ document.getElementById('breadcrumb').textContent=page?`Documentação / ${page.title}`:'Documentação / Álgebra UNIFOR';
+ document.title=`${page?.title||'Álgebra na prática'} | Entre Linhas`;
+ document.getElementById('sidebar').classList.remove('open');document.getElementById('menu-toggle').setAttribute('aria-expanded','false');
+ window.EL_PAGES.mount(id);activeRoute=id;
+}
+window.EL_DOCS={topics,esc,graphic,topicCards,overview,render};
+navigation();render();scrollSection();
+window.addEventListener('hashchange',()=>{if(path()!==activeRoute){render();main.focus({preventScroll:true});}scrollSection();});
+document.getElementById('menu-toggle').addEventListener('click',()=>{const open=document.getElementById('sidebar').classList.toggle('open');document.getElementById('menu-toggle').setAttribute('aria-expanded',String(open));});
+document.querySelector('.skip-link').addEventListener('click',event=>{event.preventDefault();main.focus();main.scrollIntoView();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){const sidebar=document.getElementById('sidebar');if(sidebar.classList.contains('open'))document.getElementById('menu-toggle').focus();sidebar.classList.remove('open');document.getElementById('menu-toggle').setAttribute('aria-expanded','false');}});
+window.EL_DOCS={topics,esc,graphic,topicCards,overview,render};
+})();

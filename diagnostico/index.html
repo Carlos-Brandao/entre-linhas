@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0c0d" />
+    <meta
+      name="description"
+      content="Questionário diagnóstico do projeto Entre Linhas sobre aplicações de Álgebra Linear na Computação."
+    />
+    <title>Diagnóstico | Entre Linhas</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b0c0d'/%3E%3Cpath d='M24 15H16v34h8M40 15h8v34h-8' fill='none' stroke='%2363e6d5' stroke-width='5' stroke-linecap='square'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="styles.css?v=6-loop" />
+    <link rel="stylesheet" href="motion-player.css?v=5-topics" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="brand-header" aria-label="Entre Linhas">
+        <div class="brand-mark" aria-hidden="true">[ ]</div>
+        <div>
+          <p class="brand-name">Entre Linhas</p>
+          <p class="brand-signature">Da teoria à prática</p>
+        </div>
+      </header>
+
+      <div class="parallel-lines" aria-hidden="true">
+        <span></span>
+        <span></span>
+      </div>
+
+      <section class="screen screen--start" id="start-screen" aria-labelledby="start-title">
+        <p class="eyebrow">Diagnóstico · Álgebra Linear</p>
+        <h1 id="start-title">Queremos entender seu ponto de partida.</h1>
+        <p class="lead">
+          Conte sua experiência com Álgebra Linear e resolva quatro desafios visuais.
+          Não vale nota e não pedimos nome ou matrícula.
+        </p>
+
+        <div class="facts" aria-label="Informações do questionário">
+          <div class="fact">
+            <span class="fact-value">08</span>
+            <span class="fact-label">questões</span>
+          </div>
+          <div class="fact">
+            <span class="fact-value">5–8</span>
+            <span class="fact-label">minutos</span>
+          </div>
+          <div class="fact">
+            <span class="fact-value">Sem</span>
+            <span class="fact-label">identificação</span>
+          </div>
+        </div>
+
+        <div class="start-actions">
+          <a class="button button--secondary" href="teste.html">Teste</a>
+          <button class="button button--primary" id="start-button" type="button">
+            Iniciar diagnóstico
+          </button>
+        </div>
+      </section>
+
+      <section class="screen screen--quiz" id="quiz-screen" aria-labelledby="question-title" hidden>
+        <div class="quiz-status">
+          <p class="eyebrow" id="question-number">Questão 1 de 8</p>
+          <p class="progress-value" id="progress-value">0 de 8 etapas</p>
+        </div>
+        <div
+          class="progress-track"
+          role="progressbar"
+          aria-label="Progresso do questionário"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
+          <span class="progress-bar" id="progress-bar"></span>
+        </div>
+
+        <form id="quiz-form" novalidate>
+          <fieldset class="question-fieldset" id="question-fieldset">
+            <legend id="question-title" tabindex="-1">Carregando pergunta...</legend>
+            <p class="question-topic eyebrow" id="question-topic" hidden></p>
+            <p class="question-hint" id="question-hint"></p>
+            <div class="question-visual" id="question-visual" hidden></div>
+            <div class="options" id="options"></div>
+          </fieldset>
+
+          <div class="followup-field" id="topics-followup" hidden>
+            <label for="topics-detail">Quais tópicos? Cite uma aplicação que você associa a pelo menos um deles.</label>
+            <textarea id="topics-detail" rows="3" maxlength="1000" placeholder="Ex.: matrizes para transformar objetos em um jogo." aria-describedby="topics-help"></textarea>
+            <p id="topics-help">Complemento opcional.</p>
+          </div>
+
+          <section class="answer-feedback" id="answer-feedback" aria-labelledby="feedback-title" hidden>
+            <p class="eyebrow" id="feedback-kicker"></p>
+            <h2 id="feedback-title" tabindex="-1"></h2>
+            <p class="feedback-description" id="feedback-description"></p>
+            <div class="motion-legend"><span class="initial-key">Referência</span><span>Cor: resultado da alternativa</span></div>
+            <div class="feedback-comparison" id="feedback-comparison"></div>
+            <p class="feedback-note">Sua primeira resposta foi mantida no diagnóstico.</p>
+          </section>
+
+          <p class="validation-message" id="validation-message" aria-live="polite"></p>
+
+          <div class="quiz-actions">
+            <button class="button button--secondary" id="previous-button" type="button">
+              Voltar
+            </button>
+            <button class="button button--primary" id="next-button" type="submit">
+              Próxima questão
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section
+        class="screen screen--complete"
+        id="complete-screen"
+        aria-labelledby="complete-title"
+        hidden
+      >
+        <div class="completion-mark" aria-hidden="true">[✓]</div>
+        <p class="eyebrow">Diagnóstico concluído</p>
+        <h1 id="complete-title">Obrigado pela participação.</h1>
+        <p class="lead" id="completion-description">Agora, acompanhe a apresentação do projeto Entre Linhas.</p>
+        <p class="local-note" id="save-status" role="status"></p>
+        <div class="response-code">
+          <span>Código desta resposta</span>
+          <strong id="response-code">—</strong>
+        </div>
+        <a class="button button--secondary home-link" href="index.html">Voltar ao início</a>
+      </section>
+
+      <footer class="site-footer">
+        <span>[ ]</span>
+        <span>Entre Linhas · Universidade de Fortaleza</span>
+      </footer>
+    </main>
+
+    <script src="motion-player.js?v=5-topics"></script>
+    <script src="applied-player.js?v=5-topics"></script>
+    <script src="app.js?v=6-loop"></script>
+  </body>
+</html>

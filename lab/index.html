@@ -1,0 +1,236 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Demonstração | Entre Linhas</title><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="lab.css"></head><body><div id="entre-linhas-algebra" lang="pt-BR">
+  <div class="text-small text-muted el-eyebrow">ENTRE LINHAS · DA TEORIA À PRÁTICA</div>
+  <div class="viz-controls">
+    <label class="form-label">Tópico<select class="form-select" id="el-topic"></select></label>
+    <label class="form-label">Aplicação<select class="form-select" id="el-example"></select></label>
+  </div>
+  <h2 id="el-title"></h2>
+  <div id="el-application" class="text-muted"></div>
+  <div id="el-controls" class="viz-controls"></div>
+  <div class="el-view">
+    <div id="el-stage"></div>
+    <aside id="el-math" aria-live="off" hidden><div class="el-math-label"></div><div class="el-math-body"></div></aside>
+  </div>
+  <div id="el-status" aria-live="polite" class="tabular-nums"></div>
+  <div id="el-connection"></div>
+  <hr>
+  <div class="viz-row el-navigation">
+    <button class="btn" type="button" id="el-prev"><i data-lucide="arrow-left" aria-hidden="true"></i> Anterior</button>
+    <span class="text-small tabular-nums" id="el-progress"></span>
+    <button class="btn btn-primary" type="button" id="el-next">Próximo <i data-lucide="arrow-right" aria-hidden="true"></i></button>
+  </div>
+  <div class="viz-row el-foot text-small text-muted">
+    <span>Simulações didáticas · dados fictícios</span>
+    <a id="el-source" target="_blank" rel="noopener noreferrer">Referência do método</a>
+  </div>
+</div>
+<style>
+#entre-linhas-algebra { color:var(--foreground); width:100%; }
+#entre-linhas-algebra .el-eyebrow { margin:0 0 18px; padding-right:94px; }
+#entre-linhas-algebra h2 { margin:18px 0 5px; }
+#entre-linhas-algebra #el-controls { margin-top:18px; }
+#entre-linhas-algebra #el-stage { width:100%; min-width:0; }
+#entre-linhas-algebra .el-scene { display:block; width:100%; overflow:visible; }
+#entre-linhas-algebra .el-scene text { fill:var(--foreground); font-size:14px; }
+#entre-linhas-algebra .el-view { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; }
+@media (min-width:760px) { #entre-linhas-algebra .el-view.has-math { grid-template-columns:minmax(0,1fr) 250px; } }
+#entre-linhas-algebra #el-math { border:1px solid var(--border); border-left:3px solid var(--viz-series-1); border-radius:10px; padding:12px 14px; font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; line-height:1.55; overflow-x:auto; align-self:start; }
+#entre-linhas-algebra #el-math[hidden] { display:none; }
+#entre-linhas-algebra .el-math-label { font-family:inherit; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--viz-series-1); margin-bottom:8px; }
+#entre-linhas-algebra .el-math-body p { margin:8px 0 0; }
+#entre-linhas-algebra .el-math-body .muted { color:var(--muted-foreground); }
+#entre-linhas-algebra .el-math-body .hot { color:var(--viz-series-1); font-weight:700; }
+#entre-linhas-algebra .el-mat { border-collapse:separate; border-spacing:0; margin:2px 0; font-variant-numeric:tabular-nums; }
+#entre-linhas-algebra .el-mat td, #entre-linhas-algebra .el-mat th { padding:1px 5px; text-align:right; font-weight:400; }
+#entre-linhas-algebra .el-mat th { color:var(--muted-foreground); font-size:11px; }
+#entre-linhas-algebra .el-mat td.bl { border-left:2px solid var(--muted-foreground); }
+#entre-linhas-algebra .el-mat td.br { border-right:2px solid var(--muted-foreground); }
+#entre-linhas-algebra .el-mat td.on { background:rgba(99,230,213,.18); color:var(--viz-series-1); font-weight:700; }
+#entre-linhas-algebra .el-mat td.row { background:rgba(94,167,255,.14); }
+#entre-linhas-algebra .el-scene .el-muted { fill:var(--muted-foreground); }
+#entre-linhas-algebra #el-status { margin-top:12px; min-height:22px; overflow-wrap:anywhere; }
+#entre-linhas-algebra #el-connection { margin-top:12px; overflow-wrap:anywhere; }
+#entre-linhas-algebra .el-navigation { justify-content:space-between; }
+#entre-linhas-algebra .el-foot { margin-top:14px; justify-content:space-between; }
+#entre-linhas-algebra #el-application { overflow-wrap:anywhere; }
+</style>
+<script src="d3.min.js"></script>
+<script>
+(() => {
+  const root = document.getElementById('entre-linhas-algebra');
+  const stage = root.querySelector('#el-stage');
+  const controls = root.querySelector('#el-controls');
+  const status = root.querySelector('#el-status');
+  const topicInput = root.querySelector('#el-topic');
+  const exampleInput = root.querySelector('#el-example');
+  const previous = root.querySelector('#el-prev');
+  const next = root.querySelector('#el-next');
+  const mathBox = root.querySelector('#el-math');
+  const demos = [];
+  const LOOP_HOLD = 900;
+  const num = (v, digits = 2) => typeof v === 'number' ? Number(v).toLocaleString('pt-BR', {maximumFractionDigits:digits}) : v;
+  let index = 0, generation = 0, frame = null, redraw = null, inputCounter = 0;
+  const ns = 'http://www.w3.org/2000/svg';
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  function element(tag, attrs, parent, text, svg = false) {
+    const node = svg ? document.createElementNS(ns,tag) : document.createElement(tag);
+    for (const [key,value] of Object.entries(attrs || {})) node.setAttribute(key,String(value));
+    if (text !== undefined) node.textContent = text;
+    if (parent) parent.appendChild(node);
+    return node;
+  }
+  function cancel() { if (frame !== null) cancelAnimationFrame(frame); frame = null; }
+  function save() {
+    const demo = demos[index];
+    if (window.openai?.setWidgetState) window.openai.setWidgetState({modelContent:{topico:demo.topic,aplicacao:demo.title,exemplo:index+1,total:demos.length},privateContent:{demoId:demo.id}}).catch(()=>{});
+  }
+  function api() {
+    const ownGeneration = generation;
+    return {
+      root:stage, controls,
+      width:()=>Math.max(240,stage.clientWidth),
+      svg() {
+        const w = Math.max(240,stage.clientWidth), h = w < 450 ? 340 : 380;
+        stage.replaceChildren();
+        const svg = element('svg',{viewBox:`0 0 ${w} ${h}`,width:w,height:h,class:'el-scene',role:'img','aria-label':demos[index].title},stage,undefined,true);
+        element('title',{},svg,demos[index].title,true);
+        element('desc',{},svg,demos[index].application,true);
+        return {svg,w,h};
+      },
+      el:(tag,attrs,parent,text)=>element(tag,attrs,parent,text,true),
+      htmlElement:(tag,attrs,parent,text)=>element(tag,attrs,parent,text),
+      status(text) { if (generation === ownGeneration) status.textContent = text; },
+      onResize(fn) { redraw = fn; },
+      cancel,
+      animate(duration,onFrame,onDone) {
+        cancel();
+        if (reduced.matches || duration <= 0) { onFrame(1); onDone?.(); return; }
+        const start = performance.now();
+        function tick(now) {
+          if (ownGeneration !== generation) return;
+          // A frame's timestamp can precede the performance.now() captured above.
+          // Keep every demo's progress in [0, 1], including that first frame.
+          const p = Math.max(0,Math.min(1,(now-start)/duration));
+          onFrame(p);
+          if(p < 1) frame = requestAnimationFrame(tick);
+          else { frame = null; onDone?.(); }
+        }
+        onFrame(0); frame = requestAnimationFrame(tick);
+      },
+      // Plays 0 → 1, holds the final frame for 0.9 s and starts again.
+      // With yoyo it returns 1 → 0 (holding at both ends) instead of jumping back.
+      loop(duration,onFrame,{yoyo=false}={}) {
+        cancel();
+        if (reduced.matches || duration <= 0) { onFrame(1); return; }
+        const cycle = yoyo ? 2*(duration+LOOP_HOLD) : duration+LOOP_HOLD;
+        let start = null, last = 0;
+        function tick(now) {
+          if (ownGeneration !== generation) return;
+          if (start === null || now < start) start = now;
+          const t = (now-start) % cycle;
+          let p = Math.min(1,t/duration);
+          if (yoyo && t >= duration+LOOP_HOLD) p = Math.max(0,1-(t-duration-LOOP_HOLD)/duration);
+          if (p !== last) { last = p; onFrame(p); }
+          frame = requestAnimationFrame(tick);
+        }
+        onFrame(0); frame = requestAnimationFrame(tick);
+      },
+      math(label,html) {
+        if (generation !== ownGeneration) return;
+        mathBox.hidden = false; mathBox.parentElement.classList.add('has-math'); mathBox.dataset.generation = String(generation);
+        mathBox.querySelector('.el-math-label').textContent = 'Na aula · ' + label;
+        mathBox.querySelector('.el-math-body').innerHTML = html;
+      },
+      // HTML for a bracketed matrix; mark(i,j) may return 'on' or 'row'.
+      matrix(rows,{rowLabels,colLabels,mark,digits=2}={}) {
+        let html = '<table class="el-mat">';
+        if (colLabels) html += '<tr>'+(rowLabels?'<th></th>':'')+colLabels.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+        rows.forEach((row,i)=>{
+          html += '<tr>'+(rowLabels?`<th>${rowLabels[i]}</th>`:'');
+          row.forEach((v,j)=>{const cls=[j===0?'bl':'',j===row.length-1?'br':'',mark?.(i,j)||''].join(' ').trim();html+=`<td class="${cls}">${num(v,digits)}</td>`;});
+          html += '</tr>';
+        });
+        return html+'</table>';
+      },
+      num,
+      button(label,handler,{primary=false}={}) {
+        const button = element('button',{type:'button',class:primary?'btn btn-primary':'btn'},controls,label);
+        button.addEventListener('click',handler); return button;
+      },
+      range(label,min,max,step,value,onChange) {
+        const id = `el-field-${++inputCounter}`;
+        const wrap = element('label',{class:'form-label',for:id},controls);
+        element('span',{},wrap,label+' ');
+        const output = element('span',{class:'tabular-nums'},wrap,String(value));
+        const input = element('input',{class:'form-range',id,type:'range',min,max,step,value},wrap);
+        input.addEventListener('input',()=>{output.textContent=input.value;onChange(Number(input.value));});
+        return input;
+      },
+      select(label,options,value,onChange) {
+        const id = `el-field-${++inputCounter}`;
+        const wrap = element('label',{class:'form-label',for:id},controls,label);
+        const input = element('select',{class:'form-select',id},wrap);
+        options.forEach(option=>element('option',{value:option.value},input,option.label));
+        input.value=value; input.addEventListener('change',()=>onChange(input.value)); return input;
+      }
+    };
+  }
+  function show(i,persist=true) {
+    cancel(); generation++; redraw = null;
+    index = Math.max(0,Math.min(demos.length-1,i));
+    const demo = demos[index];
+    root.querySelector('#el-title').textContent = demo.title;
+    root.querySelector('#el-application').textContent = demo.application;
+    const connection = root.querySelector('#el-connection');
+    connection.replaceChildren();
+    element('strong',{},connection,'Na aula → na prática: ');
+    element('span',{},connection,demo.connection || demo.topic);
+    root.querySelector('#el-progress').textContent = `${index+1} / ${demos.length}`;
+    const link = root.querySelector('#el-source');
+    link.href = demo.source.url; link.textContent = demo.source.label;
+    topicInput.value = demo.topic;
+    exampleInput.replaceChildren();
+    demos.filter(d=>d.topic===demo.topic).forEach((d,n)=>element('option',{value:d.id},exampleInput,`${n+1}. ${d.title}`));
+    exampleInput.value = demo.id;
+    previous.disabled = index===0; next.disabled=index===demos.length-1;
+    controls.replaceChildren(); stage.replaceChildren(); status.textContent='';
+    stage.removeAttribute('style');
+    // Keep the panel's space while mounting so the first drawing uses the final stage width.
+    mathBox.querySelector('.el-math-body').replaceChildren();
+    demo.mount(api());
+    if (mathBox.dataset.generation !== String(generation)) { mathBox.hidden = true; mathBox.parentElement.classList.remove('has-math'); }
+    if (persist) save();
+  }
+  topicInput.addEventListener('change',()=>show(demos.findIndex(d=>d.topic===topicInput.value)));
+  exampleInput.addEventListener('change',()=>show(demos.findIndex(d=>d.id===exampleInput.value)));
+  previous.addEventListener('click',()=>show(index-1));
+  next.addEventListener('click',()=>show(index+1));
+  let lastWidth=0;
+  new ResizeObserver(()=>{const w=stage.clientWidth;if(w!==lastWidth){lastWidth=w;redraw?.();}}).observe(stage);
+  window.addEventListener('openai:set_globals',event=>{
+    const state=event.detail?.globals?.widgetState;
+    const id=state?.privateContent?.demoId;
+    if(id && demos.some(d=>d.id===id) && demos[index]?.id!==id) show(demos.findIndex(d=>d.id===id),false);
+  });
+  window.AlgebraLab={
+    register(demo){demos.push(demo);},
+    select(id){const i=demos.findIndex(d=>d.id===id); if(i<0)throw new Error('Demonstração não encontrada');show(i);},
+    start(){
+      const order=['Grafos','Vetores e matrizes','Operações vetoriais e matriciais','NumPy','Regressão linear simples','Regressão linear múltipla','Regressão polinomial','Gradiente descendente','Computação Gráfica'];
+      demos.sort((a,b)=>order.indexOf(a.topic)-order.indexOf(b.topic));
+      [...new Set(demos.map(d=>d.topic))].forEach(topic=>element('option',{value:topic},topicInput,topic));
+      const saved=decodeURIComponent(location.hash.slice(1)) || window.openai?.widgetState?.privateContent?.demoId;
+      const found=demos.findIndex(d=>d.id===saved);
+      show(found<0?0:found,false);
+    },
+    get catalog(){return demos.map(({id,topic,title,application,connection,source})=>({id,topic,title,application,connection,source}));}
+  };
+})();
+</script>
+<script src="grafos.js"></script><script src="fundamentos.js"></script><script src="regressoes.js"></script><script src="gradiente-grafica.js"></script><script>
+window.AlgebraLab.start();
+window.addEventListener('hashchange',()=>{try{window.AlgebraLab.select(decodeURIComponent(location.hash.slice(1)));}catch(e){document.getElementById('el-status').textContent=e.message;}});
+function reportHeight(){if(parent!==window)parent.postMessage({type:'entre-linhas-height',height:Math.ceil(document.body.getBoundingClientRect().height)+30},location.origin);}
+new ResizeObserver(reportHeight).observe(document.body);
+reportHeight();
+</script></body></html>

@@ -1,0 +1,61 @@
+.motion-card {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--color-graphite-700, #2a2d30);
+  border-radius: 14px;
+  background: var(--color-ink-900, #121416);
+}
+
+.motion-plot {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 200px;
+  overflow: hidden;
+}
+
+.motion-gridline {
+  stroke: var(--color-graphite-700, #2a2d30);
+  stroke-width: .7;
+}
+
+.motion-axis {
+  stroke: var(--color-gray-400, #a8adb3);
+  stroke-width: 1;
+  opacity: .7;
+}
+
+.motion-origin,
+.motion-axis-label {
+  fill: var(--color-gray-400, #a8adb3);
+}
+
+.motion-axis-label {
+  font-family: var(--font-mono, Consolas, monospace);
+  font-size: 13px;
+}
+
+.motion-reference {
+  fill: none;
+  stroke: var(--color-gray-400, #a8adb3);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+.motion-shape {
+  fill: var(--motion-accent, #63e6d5);
+  fill-opacity: .2;
+  stroke: var(--motion-accent, #63e6d5);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.motion-tip {
+  fill: var(--motion-accent, #63e6d5);
+}
+
+.motion-landmark {
+  fill: var(--color-ink-900, #121416);
+  stroke: var(--motion-accent, #63e6d5);
+  stroke-width: 1.5;
+}

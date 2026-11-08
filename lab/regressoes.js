@@ -176,7 +176,7 @@
     connection:'Regressão simples → usa o tamanho do arquivo para estimar o tempo.',source:sources.simple,
     mount(api){
       let size=75,progress=0;
-      const points=seq(8,i=>({x:10+i*13,y:.35+(10+i*13)*.4+noise(i)*.4})), model=linear(points), [b,a]=model.coefficients;
+      const points=seq(8,i=>({x:10+i*13,y:.35+(10+i*13)*.4+noise(i)*3})), model=linear(points), [b,a]=model.coefficients;
       const status=()=>api.status(`Arquivo maior, espera maior: ${fmt(size,0)} MB levam cerca de ${fmt(model.predict(size),0)} s nesta conexão.`);
       const draw=()=>{
         const total=model.predict(size);
@@ -247,10 +247,10 @@
   const apiSamples=seq(24,i=>{const x=50+(i%6)*90,z=20+Math.floor(i/6)*60;return{x,z,y:24+.075*x+.18*z+noise(i)*3};});
   function multipleMath(api,model,names,values,unit,result){
     const [b0,b1,b2]=model.coefficients;
-    return `<p style="margin:0">ŷ = b₀ + b₁·${names[0]} + b₂·${names[1]}</p>`+
-      api.matrix([[fmt(b0,2),fmt(b1,3),fmt(b2,3)]],{colLabels:['b₀','b₁','b₂']})+
+    return `<p style="margin:0">ŷ = b + w₁·${names[0]} + w₂·${names[1]}</p>`+
+      api.matrix([[fmt(b0,2),fmt(b1,3),fmt(b2,3)]],{colLabels:['b','w₁','w₂']})+
       `<p>${fmt(b0,1)} + ${fmt(b1,3)}·${hot(fmt(values[0],0))} + ${fmt(b2,3)}·${hot(fmt(values[1],0))}</p><p>≈ ${hot(fmt(result,0)+' '+unit)}</p>`+
-      '<p class="muted">Cada b mede o peso de uma variável. Juntas, explicam o resultado.</p>';
+      '<p class="muted">b é a base; cada w é o peso de uma variável. Somadas, as contribuições dão a previsão.</p>';
   }
   registry.register({
     id:'multipla-api',topic:'Regressão linear múltipla',title:'Por que o aplicativo ficou lento?',
@@ -267,7 +267,7 @@
     }
   });
 
-  const renderSamples=seq(24,i=>{const x=100+(i%6)*100,z=1+Math.floor(i/6)*3;return{x,z,y:2.3+.012*x+.52*z+noise(i)*.2};});
+  const renderSamples=seq(24,i=>{const x=100+(i%6)*160,z=1+Math.floor(i/6)*4;return{x,z,y:2.3+.012*x+.52*z+noise(i)*.2};});
   registry.register({
     id:'multipla-render',topic:'Regressão linear múltipla',title:'Mais detalhes deixam o jogo pesado?',
     application:'O jogo estima o tempo de desenhar a cena conforme você adiciona objetos e luzes.',
@@ -275,26 +275,26 @@
     mount(api){
       const model=linear(renderSamples,true);let objects=400,lights=6,shownObjects=400,shownLights=6;
       const draw=()=>{
-        const values=[model.coefficients[1]*shownObjects,model.coefficients[2]*shownLights,model.predict(shownObjects,shownLights)],names=['Objetos','Luzes','Cena toda'];
+        const values=[model.coefficients[0],model.coefficients[1]*shownObjects,model.coefficients[2]*shownLights,model.predict(shownObjects,shownLights)],names=['Base','Objetos','Luzes','Cena toda'];
         const {svg,w,h}=api.svg();svg.setAttribute('aria-label','Tempo previsto para desenhar o jogo');
         const left=88,right=w-18,top=30,bottom=h-56,drawable=right-left-6;
-        const domainMax=Math.max(model.predict(600,10),1000/60)*drawable/(drawable-70);
+        const domainMax=Math.max(model.predict(900,13),1000/60)*drawable/(drawable-70);
         const x=d3.scaleLinear().domain([0,domainMax]).range([left+3,right-3]);
         const y=d3.scaleBand().domain(names).range([top+12,bottom-8]).padding(.45);
         api.el('rect',{x:left,y:top,width:right-left,height:bottom-top,fill:'none',stroke:BORDER,'data-chart-frame':''},svg);
         const ax=d3.select(svg).append('g').attr('transform',`translate(0,${bottom})`).call(d3.axisBottom(x).ticks(w<420?3:5).tickSize(4));ax.select('.domain').remove();ax.selectAll('line').attr('stroke',BORDER);ax.selectAll('text').attr('fill',FG).attr('font-size',13);
-        const over=values[2]>1000/60;
-        names.forEach((name,i)=>{const value=values[i];label(api,svg,name,{x:left-8,y:y(name)+y.bandwidth()/2+5,'text-anchor':'end'});api.el('rect',{x:x(0),y:y(name),width:Math.max(0,x(value)-x(0)),height:y.bandwidth(),rx:3,fill:i===2&&over?S3:S1,opacity:i===2?1:.45},svg);label(api,svg,`${fmt(value)} ms`,{x:x(value)+6,y:y(name)+y.bandwidth()/2+5});});
+        const over=values[3]>1000/60;
+        names.forEach((name,i)=>{const value=values[i];label(api,svg,name,{x:left-8,y:y(name)+y.bandwidth()/2+5,'text-anchor':'end'});api.el('rect',{x:x(0),y:y(name),width:Math.max(0,x(value)-x(0)),height:y.bandwidth(),rx:3,fill:i===3&&over?S3:S1,opacity:i===3?1:.45},svg);label(api,svg,`${fmt(value)} ms`,{x:x(value)+6,y:y(name)+y.bandwidth()/2+5});});
         api.el('line',{x1:x(1000/60),x2:x(1000/60),y1:top,y2:bottom,stroke:FG,'stroke-dasharray':'3 4',opacity:.55},svg);
         label(api,svg,'Meta: 60 fps',{x:x(1000/60),y:top-9,'text-anchor':'middle'});
         label(api,svg,'Tempo para desenhar (ms)',{class:'axis-title','data-axis':'x',x:(left+right)/2,y:h-12,'text-anchor':'middle'});
         preventTickCollisions(svg);
-        api.math('soma de efeitos',multipleMath(api,model,['obj','luzes'],[shownObjects,shownLights],'ms',values[2])+`<p>${over?'Passou de 16,7 ms: o jogo fica abaixo de 60 fps.':'Abaixo de 16,7 ms: 60 fps garantidos.'}</p>`);
+        api.math('soma de efeitos',multipleMath(api,model,['obj','luzes'],[shownObjects,shownLights],'ms',values[3])+`<p>${over?'Passou de 16,7 ms: o jogo fica abaixo de 60 fps.':'Abaixo de 16,7 ms: 60 fps garantidos.'}</p>`);
       };
       const status=()=>api.status(`Objetos e luzes somam trabalho: esta cena permite cerca de ${fmt(1000/model.predict(objects,lights),0)} quadros por segundo.`);
       const change=()=>{const fromObjects=shownObjects,fromLights=shownLights;api.animate(350,t=>{shownObjects=fromObjects+(objects-fromObjects)*t;shownLights=fromLights+(lights-fromLights)*t;draw();},()=>{draw();status();});};
-      api.range('Objetos na cena',100,600,25,objects,v=>{objects=v;change();});
-      api.range('Luzes na cena',1,10,1,lights,v=>{lights=v;change();});
+      api.range('Objetos na cena',100,900,25,objects,v=>{objects=v;change();});
+      api.range('Luzes na cena',1,13,1,lights,v=>{lights=v;change();});
       api.onResize(draw);draw();status();
     }
   });

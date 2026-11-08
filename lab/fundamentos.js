@@ -179,7 +179,7 @@
         text(api, svg, w / 2, h - 12, `${n} linhas · ${n} colunas · ${n * n} números`);
         api.math('a imagem é uma matriz', api.matrix(values.map(r => r.map(Math.round)), { digits: 0, mark: (i, j) => i * n + j === current && scan < n * n ? 'on' : i === row && j === col ? 'row' : '' }) +
           `<p>img[${row}, ${col}] = <span class="hot">${Math.round(values[row][col])}</span></p>` +
-          '<p class="muted">0 = apagado · 255 = brilho máximo. Em azul: o pixel escolhido.</p>');
+          `<p class="muted">0 = apagado · 255 = brilho máximo. Tracejado: o pixel escolhido. O Python conta a partir do 0: linha ${row + 1}, coluna ${col + 1} vira img[${row}, ${col}].</p>`);
       }
       function status() { api.status('A tela lê a matriz linha por linha: cada número vira o brilho de um quadrado.'); }
       const options = Array.from({ length: n * n }, (_, i) => ({ value: String(i), label: `Linha ${Math.floor(i/n)+1}, coluna ${i%n+1}` }));
@@ -200,7 +200,7 @@
       function draw() {
         const { svg, w, h } = api.svg(); title(api, svg, 'Três atributos numéricos formam vetores de perfil e de um jogo; barras mostram diferenças.');
         const left = 20, right = w - 40, span = right - left, rowH = Math.min(100, (h - 90) / 3);
-        text(api, svg, left, 26, 'Jogo “Órbita”', 'start', { fill: C.b }); text(api, svg, right, 26, 'Seu perfil', 'end', { fill: C.a });
+        const narrow = w < 420; text(api, svg, left, 26, narrow ? '■ Jogo · em cima' : '■ Jogo “Nebulosa” · em cima', 'start', { fill: C.b }); text(api, svg, right, 26, narrow ? '■ Você · embaixo' : '■ Seu perfil · embaixo', 'end', { fill: C.a });
         profile.forEach((v, i) => {
           const y = 66 + i * rowH;
           text(api, svg, left, y - 10, labels[i], 'start');

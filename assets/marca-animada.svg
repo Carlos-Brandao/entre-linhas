@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" fill="none" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Entre Linhas">
+  <!-- Marca Entre Linhas em movimento (a mesma do quiz): dois pontos viram as retas,
+       o traço continua até o colchete e a ligação se rompe. Toca uma vez ao carregar.
+       Para repetir em loop, troque "both" por "both infinite" e some 1,5 s de pausa nas durações. -->
+  <style>
+    .t, .l, .r { stroke-dasharray: 1 2; }
+    .r { animation: linha 650ms linear both; }
+    .l { animation: ligacao 900ms 650ms linear both; }
+    .t { animation: tracar 600ms 950ms linear both; }
+    .f { animation: fundo 400ms 1500ms ease-out both; }
+    @keyframes tracar { from { stroke-dashoffset: 1.05; } to { stroke-dashoffset: 0; } }
+    @keyframes ligacao { 0% { stroke-dashoffset: 1.05; } 50% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -1.05; } }
+    @keyframes linha { 0% { stroke-dashoffset: .999; opacity: 0; } 12% { opacity: 1; } 35% { stroke-dashoffset: .999; } 100% { stroke-dashoffset: 0; opacity: 1; } }
+    @keyframes fundo { from { opacity: 0; } to { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } .l { opacity: 0; } }
+  </style>
+  <rect class="f" x="55" y="25" width="130" height="130" rx="30" fill="#121416" stroke="#2A2D30" stroke-width="1.5"/>
+  <path class="r" d="M98 76H142" stroke="#63E6D5" stroke-width="9" pathLength="1"/>
+  <path class="l" d="M142 76C150 76 120 50 136 50" stroke="#63E6D5" stroke-width="9" pathLength="1"/>
+  <path class="t" d="M136 50H160V130H136" stroke="#F4F5F2" stroke-width="9" pathLength="1"/>
+  <path class="r" d="M142 104H98" stroke="#63E6D5" stroke-width="9" pathLength="1"/>
+  <path class="l" d="M98 104C90 104 120 130 104 130" stroke="#63E6D5" stroke-width="9" pathLength="1"/>
+  <path class="t" d="M104 130H80V50H104" stroke="#F4F5F2" stroke-width="9" pathLength="1"/>
+</svg>

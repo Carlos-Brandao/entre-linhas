@@ -168,3 +168,11 @@ a.saida:hover{border-color:var(--cyan)}
 /* Passos internos de uma estação (zoom por rolagem) */
 .estacao[data-fase="visao"] .so-passo,.estacao:is([data-fase="dentro"],[data-fase="fim"]) .so-visao{display:none}
 .estacao.unidade:not([data-fase="fim"]) .controles>:not(.dica-passo){display:none}
+
+/* Véu atrás do texto: a cena 3D nunca passa por cima da leitura */
+.texto{position:relative;isolation:isolate}
+.texto::before{content:"";position:absolute;z-index:-1;inset:-120px -16px -28px;pointer-events:none;
+  background:linear-gradient(rgba(11,12,13,.96) calc(100% - 28px),rgba(11,12,13,0))}
+@media (min-width:900px){
+  .texto::before{inset:-32px -40px;border-radius:24px;background:radial-gradient(closest-side,rgba(11,12,13,.94) 72%,rgba(11,12,13,0))}
+}

@@ -34,7 +34,7 @@ p{margin:0 0 12px}
 .pular:hover{color:var(--paper)}
 
 /* ---------- Trilha e palco ---------- */
-.trilha{position:relative;height:2500vh;height:calc(2400vh + 100dvh)}
+.trilha{position:relative;height:2200vh;height:calc(2100vh + 100dvh)}
 .parada,.subparada{position:absolute;left:0;width:1px;height:1px;scroll-snap-align:start}
 .palco{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;
   background:
@@ -167,7 +167,7 @@ a.saida:hover{border-color:var(--cyan)}
 
 /* Passos internos de uma estação (zoom por rolagem) */
 .estacao[data-fase="visao"] .so-passo,.estacao:is([data-fase="dentro"],[data-fase="fim"]) .so-visao{display:none}
-.estacao.unidade:not([data-fase="fim"]) .controles>:not(.dica-passo){display:none}
+.estacao.unidade[data-fase="visao"] .controles>:not(.dica-passo){display:none}
 
 /* Véu atrás do texto: a cena 3D nunca passa por cima da leitura */
 .texto{position:relative;isolation:isolate}
@@ -176,3 +176,16 @@ a.saida:hover{border-color:var(--cyan)}
 @media (min-width:900px){
   .texto::before{inset:-32px -40px;border-radius:24px;background:radial-gradient(closest-side,rgba(11,12,13,.94) 72%,rgba(11,12,13,0))}
 }
+
+/* Unidade I: suas notas */
+.notas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.nota{display:grid;grid-template-columns:34px minmax(0,1fr) 34px;overflow:hidden;align-items:center;border:1px solid var(--graphite);border-radius:12px;background:rgba(18,20,22,.9);min-height:56px}
+.nota button{height:100%;min-height:48px;border:0;background:none;color:var(--cyan);font:600 1.2rem var(--font-mono);cursor:pointer;border-radius:12px}
+.nota button:disabled{color:var(--graphite);cursor:default}
+.nota span{text-align:center;font:500 .72rem/1.25 var(--font-mono);color:var(--gray)}
+.nota b{display:block;font-size:1rem;color:var(--paper)}
+.leitura .previsto{color:var(--violet)}
+.fonte{font:500 .72rem var(--font-mono);color:var(--gray);min-height:48px;display:inline-flex;align-items:center}
+.estacao.unidade[data-fase="dentro"] .controles>.links{display:none}
+.botoes.links{gap:4px 20px}
+.rotulo3d{font-size:.72rem}

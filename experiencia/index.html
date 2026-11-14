@@ -31,17 +31,14 @@
   <span class="parada" id="s4" style="top:1100vh"></span>
   <span class="subparada" style="top:1200vh"></span>
   <span class="subparada" style="top:1300vh"></span>
-  <span class="subparada" style="top:1400vh"></span>
-  <span class="parada" id="s5" style="top:1500vh"></span>
+  <span class="parada" id="s5" style="top:1400vh"></span>
+  <span class="subparada" style="top:1500vh"></span>
   <span class="subparada" style="top:1600vh"></span>
-  <span class="subparada" style="top:1700vh"></span>
+  <span class="parada" id="s6" style="top:1700vh"></span>
   <span class="subparada" style="top:1800vh"></span>
-  <span class="parada" id="s6" style="top:1900vh"></span>
-  <span class="subparada" style="top:2000vh"></span>
-  <span class="subparada" style="top:2100vh"></span>
-  <span class="subparada" style="top:2200vh"></span>
-  <span class="parada" id="s7" style="top:2300vh"></span>
-  <span class="parada" id="s8" style="top:2400vh"></span>
+  <span class="subparada" style="top:1900vh"></span>
+  <span class="parada" id="s7" style="top:2000vh"></span>
+  <span class="parada" id="s8" style="top:2100vh"></span>
 
   <div class="palco" id="palco">
     <canvas id="cena" aria-hidden="true"></canvas>
@@ -98,52 +95,52 @@
       <div class="texto">
         <p class="eyebrow">Início</p>
         <h2 id="t3">Agora mexa você.</h2>
-        <p>Três unidades da cadeira, três coisas que você usa todo dia. Arraste os objetos.</p>
+        <p>Três unidades da cadeira, três produtos que você usa todo dia: Netflix, Instagram e Google.</p>
       </div>
     </section>
 
     <!-- 4 · Unidade I -->
     <section class="estacao" data-i="4" aria-labelledby="t4" tabindex="-1">
       <div class="texto">
-        <p class="eyebrow">Unidade I</p>
-        <h2 id="t4">Três notas fiscais, três preços.</h2>
-        <p>Sistemas lineares: cada nota é uma equação, cada equação é um plano. Onde os três se cruzam, está a resposta.</p>
+        <p class="eyebrow">Unidade I · caso real: Netflix</p>
+        <h2 id="t4">Como a Netflix adivinha a nota que você daria?</h2>
+        <p>Em 2009 ela pagou US$ 1 milhão à equipe que melhorou essa previsão em 10%. Uma das ideias centrais cabe em uma matriz.</p>
       </div>
       <div class="controles">
-        <ul class="equacoes" id="equacoes" aria-label="As três notas"></ul>
-        <p class="leitura" id="leitura-sistema" aria-live="polite"></p>
-        <div class="botoes">
-          <button type="button" class="btn primario" id="repetir-nota">Repetir uma nota</button>
-          <button type="button" class="btn" id="voltar-nota">Voltar</button>
+        <div class="notas" id="notas" role="group" aria-label="Suas notas"></div>
+        <p class="leitura" id="leitura-notas" aria-live="polite"></p>
+        <div class="botoes links">
+          <a class="link-seta" href="../#regressao-linear">Ver mínimos quadrados →</a>
+          <a class="fonte" href="https://ieeexplore.ieee.org/document/5197422" target="_blank" rel="noopener noreferrer">fonte: equipe vencedora, 2009</a>
         </div>
-        <a class="link-seta" href="../#sistemas-lineares/demonstracoes">Ver a eliminação passo a passo →</a>
       </div>
     </section>
 
     <!-- 5 · Unidade II -->
     <section class="estacao" data-i="5" aria-labelledby="t5" tabindex="-1">
       <div class="texto">
-        <p class="eyebrow">Unidade II</p>
-        <h2 id="t5">Uma matriz move o mundo do jogo.</h2>
-        <p>Transformações lineares: girar, esticar e inclinar são multiplicações por matriz.</p>
+        <p class="eyebrow">Unidade II · caso real: Instagram</p>
+        <h2 id="t5">Por que o Explorar mostra contas que você nem segue?</h2>
+        <p>Em 2019 a engenharia do Instagram explicou a base: cada conta vira um vetor, e o sistema procura os vetores vizinhos dos que você curte.</p>
       </div>
       <div class="controles">
         <div class="deslizadores">
-          <label class="deslizador"><span>girar</span><input type="range" id="girar" min="-180" max="180" step="5" value="30"><output id="girar-v" class="valor"></output></label>
-          <label class="deslizador"><span>esticar</span><input type="range" id="esticar" min="0.5" max="2" step="0.1" value="1.5"><output id="esticar-v" class="valor"></output></label>
-          <label class="deslizador"><span>inclinar</span><input type="range" id="inclinar" min="-1" max="1" step="0.1" value="0.4"><output id="inclinar-v" class="valor"></output></label>
+          <label class="deslizador"><span>seu gosto</span><input type="range" id="gosto" min="0" max="90" step="1" value="25" aria-describedby="gosto-v"><output id="gosto-v" class="valor"></output></label>
         </div>
-        <div class="leitura matriz" aria-live="polite"><span class="matriz-nome">M =</span><span class="matriz-corpo" id="matriz"></span></div>
-        <a class="link-seta" href="../#computacao-grafica/demonstracoes">Ver em um jogo →</a>
+        <p class="leitura" id="leitura-explorar" aria-live="polite"></p>
+        <div class="botoes links">
+          <a class="link-seta" href="../#produto-escalar">Ver produto escalar →</a>
+          <a class="fonte" href="https://ai.meta.com/blog/powered-by-ai-instagrams-explore-recommender-system/" target="_blank" rel="noopener noreferrer">fonte: Meta AI, 2019</a>
+        </div>
       </div>
     </section>
 
     <!-- 6 · Unidade III -->
     <section class="estacao" data-i="6" aria-labelledby="t6" tabindex="-1">
       <div class="texto">
-        <p class="eyebrow">Unidade III</p>
-        <h2 id="t6">O autovetor que organiza a internet.</h2>
-        <p>Autovetores e PageRank: a importância flui pelos links até estabilizar. Esse equilíbrio é um autovetor.</p>
+        <p class="eyebrow">Unidade III · caso real: Google</p>
+        <h2 id="t6">Como o Google decide quem aparece primeiro?</h2>
+        <p>Em 1998 dois estudantes propuseram medir a importância de uma página pelos links que ela recebe. Chamaram de PageRank.</p>
       </div>
       <div class="controles">
         <p class="dica">toque em uma página: ela ganha um link</p>
@@ -152,6 +149,7 @@
         <div class="botoes">
           <button type="button" class="btn" id="recomecar">Recomeçar</button>
           <a class="link-seta" href="../#autovalores/demonstracoes">Entender o autovetor →</a>
+          <a class="fonte" href="http://infolab.stanford.edu/~backrub/google.html" target="_blank" rel="noopener noreferrer">fonte: Brin e Page, 1998</a>
         </div>
       </div>
     </section>
@@ -161,7 +159,7 @@
       <div class="texto">
         <p class="eyebrow">Fim</p>
         <h2 id="t7">Tudo isso era Álgebra Linear.</h2>
-        <p>Notas fiscais, jogos e buscadores. A mesma cadeira.</p>
+        <p>Netflix, Instagram e Google. A mesma cadeira.</p>
         <ul class="selos">
           <li>Unidade I ✓</li>
           <li>Unidade II ✓</li>

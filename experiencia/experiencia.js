@@ -18,7 +18,7 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const limitar = (v, a, b) => Math.min(b, Math.max(a, v));
 const suave = t => t * t * (3 - 2 * t);
 const lerp = (a, b, t) => a + (b - a) * t;
-const fmt = (v, casas = 2) => (Math.abs(v) < 0.005 ? 0 : v).toFixed(casas).replace('-', '−');
+const fmt = (v, casas = 2) => (Math.abs(v) < 0.005 ? 0 : v).toFixed(casas).replace('-', '−').replace('.', ',');
 
 /* =====================================================================
    Lógica das estações (funciona com ou sem WebGL)
@@ -50,30 +50,24 @@ const PASSOS = {
   ],
   4: [
     { zoom: 1 },
-    { eyebrow: 'Unidade I · na cadeira', titulo: 'Sistemas, determinante e eliminação.',
-      corpo: 'Na ementa: sistemas de equações lineares, determinante, eliminação gaussiana, inversa e Gauss-Seidel (01.03 a 01.07).', zoom: 0.78 },
-    { eyebrow: 'Unidade I · na prática', titulo: 'Várias condições ao mesmo tempo.',
-      corpo: 'Descobrir preços a partir de totais, equilibrar um circuito, simular a temperatura de uma peça: tudo vira A x = b.', zoom: 0.9 },
-    { eyebrow: 'Unidade I · mexa você', titulo: 'Repita uma nota e veja a resposta sumir.',
-      corpo: 'Com duas notas iguais falta informação: os planos deixam de se cruzar em um só ponto e o determinante zera.', zoom: 1 },
+    { eyebrow: 'Unidade I · a ideia', titulo: 'Notas conhecidas preenchem as que faltam.',
+      corpo: 'Cada linha é uma pessoa, cada coluna um filme. A conta completa os buracos, em violeta. Mude uma nota sua.', zoom: 1 },
+    { eyebrow: 'Unidade I · na cadeira', titulo: 'Isso é matriz e mínimos quadrados.',
+      corpo: 'A tabela é uma matriz. Completar os buracos com o menor erro é o método dos mínimos quadrados, o mesmo da regressão (ementa 01.01 e 01.08).', zoom: 1 },
   ],
   5: [
     { zoom: 1 },
-    { eyebrow: 'Unidade II · na cadeira', titulo: 'Vetores em Rⁿ e transformações matriciais.',
-      corpo: 'Na ementa: norma, produto escalar, ortogonalidade e transformações de Rⁿ em Rᵐ (02.01 a 02.06).', zoom: 0.78 },
-    { eyebrow: 'Unidade II · na prática', titulo: 'Todo quadro de um jogo é uma multiplicação.',
-      corpo: 'Girar um personagem, aproximar a câmera, animar um braço de robô: cada ponto da cena passa por uma matriz.', zoom: 0.9 },
-    { eyebrow: 'Unidade II · mexa você', titulo: 'Gire, estique e incline a nave.',
-      corpo: 'Os três controles montam uma única matriz 2×2. É ela que move a grade e a nave juntas.', zoom: 1 },
+    { eyebrow: 'Unidade II · a ideia', titulo: 'Setas que apontam para o mesmo lado combinam.',
+      corpo: 'Cada conta é uma seta, e a direção resume o assunto. As mais alinhadas com a sua aparecem no Explorar. Mude seu gosto.', zoom: 1 },
+    { eyebrow: 'Unidade II · na cadeira', titulo: 'Isso é produto escalar e ângulo entre vetores.',
+      corpo: 'O cosseno do ângulo mede o alinhamento: perto de 1, recomenda. O tamanho da seta não importa, só a direção (ementa 02.02 e 02.03).', zoom: 1 },
   ],
   6: [
     { zoom: 1 },
-    { eyebrow: 'Unidade III · na cadeira', titulo: 'Autovalores, autovetores e diagonalização.',
-      corpo: 'Na ementa: dependência linear, base, autovalores, autovetores e diagonalização de operadores (03.01 a 03.04).', zoom: 0.78 },
-    { eyebrow: 'Unidade III · na prática', titulo: 'O ranking de uma busca é um autovetor.',
-      corpo: 'O PageRank repete a mesma multiplicação até a importância de cada página parar de mudar. Esse equilíbrio é o autovetor de autovalor 1.', zoom: 0.9 },
-    { eyebrow: 'Unidade III · mexa você', titulo: 'Dê um link a uma página e mude o ranking.',
-      corpo: 'Toque em uma página: ela ganha um link, a importância se redistribui e o equilíbrio muda.', zoom: 1 },
+    { eyebrow: 'Unidade III · a ideia', titulo: 'Um link é um voto. Voto de página importante vale mais.',
+      corpo: 'A importância circula pelos links até parar de mudar. Toque em uma página para dar um link a ela.', zoom: 1 },
+    { eyebrow: 'Unidade III · na cadeira', titulo: 'Esse equilíbrio é um autovetor.',
+      corpo: 'Repetir a mesma multiplicação até os números estabilizarem leva ao autovetor de autovalor 1 (ementa 03.03).', zoom: 1 },
   ],
 };
 const passoAtual = new Array(N).fill(0);
@@ -123,85 +117,63 @@ function mudarPasso(i, passo) {
   pedirQuadro();
 }
 
-// ---------- Estação 4: sistema linear das três notas ----------
-// Mesmos números da demo "sistemas-gauss" (dist/lab/sistemas-autovalores.js).
-const NOTAS = [[1, 2, 1], [2, 1, 1], [1, 1, 2]];
-const PRECOS = [4, 6, 10];
-const TOTAIS = NOTAS.map(r => r[0] * PRECOS[0] + r[1] * PRECOS[1] + r[2] * PRECOS[2]); // 26, 28, 30
-const TOTAL_REPETIDO = 34; // nota 3 vira cópia da nota 1 com outro total: planos paralelos
+// ---------- Estação 4: a matriz de notas (ideia base das recomendações da Netflix) ----------
+// 0 = a pessoa ainda não viu o filme. Dados fictícios.
+const PESSOAS = ['Você', 'Ana', 'Bia', 'Caio'];
+const FILMES = ['Heróis', 'Corrida', 'Humor', 'Amor', 'Terror'];
+const NOTAS_INICIAIS = [[5, 0, 2, 0, 1], [5, 5, 1, 2, 0], [1, 2, 5, 5, 0], [4, 0, 2, 1, 5]];
+const notas = { R: NOTAS_INICIAIS.map(l => l.slice()), previsto: [], exibido: [] };
 
-const det3 = m =>
-  m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) -
-  m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) +
-  m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
-
-function sistemaAtual(repetida) {
-  const A = NOTAS.map(r => r.slice());
-  const b = TOTAIS.slice();
-  if (repetida) { A[2] = A[0].slice(); b[2] = TOTAL_REPETIDO; }
-  return { A, b, det: det3(A) };
-}
-
-function cramer({ A, b, det }) {
-  return [0, 1, 2].map(k => det3(A.map((r, i) => r.map((v, j) => (j === k ? b[i] : v)))) / det);
-}
-
-const sistema = { repetida: false, transicao: 1, inicioTransicao: 0 };
-
-function termo(c, letra, primeiro) {
-  const sinal = primeiro ? '' : ' + ';
-  return sinal + (c === 1 ? '' : c) + letra;
-}
-
-function atualizarLeituraSistema() {
-  const s = sistemaAtual(sistema.repetida);
-  const cores = ['var(--cyan)', 'var(--blue)', 'var(--violet)'];
-  $('#equacoes').innerHTML = s.A.map((r, i) =>
-    `<li class="${sistema.repetida && i === 2 ? 'mudou' : ''}"><i style="background:${cores[i]}"></i>nota ${i + 1} · ` +
-    `${termo(r[0], 'x', true)}${termo(r[1], 'y')}${termo(r[2], 'z')} = ${s.b[i]}</li>`).join('') +
-    '<li>x café · y pão · z sanduíche</li>';
-  const leitura = $('#leitura-sistema');
-  if (Math.abs(s.det) > 1e-9) {
-    const [x, y, z] = cramer(s);
-    leitura.innerHTML = `<span class="ok">det ≠ 0</span> → café R$ ${fmt(x, 0)}, pão R$ ${fmt(y, 0)}, sanduíche R$ ${fmt(z, 0)}`;
-  } else {
-    leitura.innerHTML = '<span class="falta">det = 0</span> → falta informação';
+// Fatoração de matrizes por mínimos quadrados alternados (posto 2, com regularização):
+// procura U e V tais que nota ≈ média + U[pessoa] · V[filme] nas notas conhecidas.
+function completarMatriz(R, lambda = 0.35, voltas = 40) {
+  const n = R.length, m = R[0].length;
+  let soma = 0, cont = 0;
+  R.forEach(l => l.forEach(v => { if (v) { soma += v; cont++; } }));
+  const media = soma / cont;
+  let U = Array.from({ length: n }, (_, i) => [0, 1].map(k => 0.6 * Math.cos(1.3 * i + 2.1 * k + 0.4)));
+  let V = Array.from({ length: m }, (_, j) => [0, 1].map(k => 0.6 * Math.sin(0.9 * j + 1.7 * k + 0.2)));
+  // resolve (AᵀA + λI) x = Aᵀb
+  const resolver = (linhas, alvos) => {
+    let a = lambda, b = 0, d = lambda, p = 0, q = 0;
+    linhas.forEach((x, t) => { a += x[0] * x[0]; b += x[0] * x[1]; d += x[1] * x[1]; p += x[0] * alvos[t]; q += x[1] * alvos[t]; });
+    const det = a * d - b * b;
+    return [(d * p - b * q) / det, (a * q - b * p) / det];
+  };
+  for (let v = 0; v < voltas; v++) {
+    U = U.map((_, i) => { const js = R[i].map((x, j) => (x ? j : -1)).filter(j => j >= 0); return resolver(js.map(j => V[j]), js.map(j => R[i][j] - media)); });
+    V = V.map((_, j) => { const is = R.map((l, i) => (l[j] ? i : -1)).filter(i => i >= 0); return resolver(is.map(i => U[i]), is.map(i => R[i][j] - media)); });
   }
-  $('#repetir-nota').disabled = sistema.repetida;
-  $('#voltar-nota').disabled = !sistema.repetida;
+  return R.map((l, i) => l.map((_, j) => limitar(media + U[i][0] * V[j][0] + U[i][1] * V[j][1], 1, 5)));
 }
 
-function mudarSistema(repetida) {
-  if (sistema.repetida === repetida) return;
-  sistema.repetida = repetida;
-  sistema.transicao = movimentoReduzido.matches ? 1 : 0;
-  sistema.inicioTransicao = performance.now();
-  atualizarLeituraSistema();
+function atualizarNotas() {
+  notas.previsto = completarMatriz(notas.R);
+  if (!notas.exibido.length || movimentoReduzido.matches) notas.exibido = notas.previsto.map(l => l.slice());
+  const voce = notas.R[0];
+  $('#notas').innerHTML = voce.map((v, j) => v ? `<div class="nota"><button type="button" data-filme="${j}" data-d="-1" aria-label="Baixar sua nota de ${FILMES[j]}" ${v <= 1 ? 'disabled' : ''}>−</button><span>${FILMES[j]}<b>${v}</b></span><button type="button" data-filme="${j}" data-d="1" aria-label="Subir sua nota de ${FILMES[j]}" ${v >= 5 ? 'disabled' : ''}>+</button></div>` : '').join('');
+  const faltam = voce.map((v, j) => (v ? null : j)).filter(j => j !== null).sort((a, b) => notas.previsto[0][b] - notas.previsto[0][a]);
+  $('#leitura-notas').innerHTML = 'Você não viu: ' + faltam.map(j => `${FILMES[j]} <span class="previsto">${fmt(notas.previsto[0][j], 1)}</span>`).join(' · ') +
+    ` <span class="ok">→ sugere ${FILMES[faltam[0]]}</span>`;
   pedirQuadro();
 }
 
-// ---------- Estação 5: matriz de transformação 2×2 ----------
-const transf = { alvo: [1, 0, 0, 1], atual: [1, 0, 0, 1] };
+// ---------- Estação 5: contas como vetores (ideia base do Explorar do Instagram) ----------
+// Eixo x = esporte, eixo y = humor. ang = direção da conta; tam = tamanho da seta (não muda o cosseno). Dados fictícios.
+const CONTAS = [
+  { nome: '@futebol', ang: 6, tam: 2.3 }, { nome: '@treino', ang: 24, tam: 1.5 }, { nome: '@golsbizarros', ang: 46, tam: 2.0 },
+  { nome: '@standup', ang: 68, tam: 1.4 }, { nome: '@memes', ang: 86, tam: 2.2 },
+];
+const explorar = { alvo: 25, atual: 25, ordem: [] };
 
-function matrizDosControles() {
-  const ang = +$('#girar').value * Math.PI / 180;
-  const s = +$('#esticar').value;
-  const k = +$('#inclinar').value;
-  // M = Rotação(θ) · Esticar(s, 1) · Inclinar(k)  →  R · [[s, s·k], [0, 1]]
-  const c = Math.cos(ang), n = Math.sin(ang);
-  return [c * s, c * s * k - n, n * s, n * s * k + c]; // [a, b, c, d] por linhas
-}
-
-function atualizarLeituraMatriz() {
-  $('#girar-v').textContent = `${$('#girar').value}°`;
-  $('#esticar-v').textContent = `${(+$('#esticar').value).toFixed(1)}×`;
-  $('#inclinar-v').textContent = fmt(+$('#inclinar').value, 1);
-  const m = matrizDosControles();
-  transf.alvo = m;
-  if (movimentoReduzido.matches) transf.atual = m.slice();
-  $('#matriz').innerHTML =
-    `<span class="c1">${fmt(m[0])}</span><span class="c2">${fmt(m[1])}</span>` +
-    `<span class="c1">${fmt(m[2])}</span><span class="c2">${fmt(m[3])}</span>`;
+function atualizarExplorar() {
+  explorar.alvo = +$('#gosto').value;
+  if (movimentoReduzido.matches) explorar.atual = explorar.alvo;
+  const cos = CONTAS.map(c => Math.cos((c.ang - explorar.alvo) * Math.PI / 180));
+  explorar.ordem = CONTAS.map((_, k) => k).sort((a, b) => cos[b] - cos[a]);
+  $('#gosto-v').textContent = explorar.alvo < 30 ? 'esporte' : explorar.alvo > 60 ? 'humor' : 'os dois';
+  $('#leitura-explorar').innerHTML = 'No seu Explorar: ' + explorar.ordem.slice(0, 2).map(k => `<span class="ok">${CONTAS[k].nome}</span> cos ${fmt(cos[k])}`).join(' · ') +
+    `<br>Fica de fora: ${CONTAS[explorar.ordem[4]].nome} cos ${fmt(cos[explorar.ordem[4]])}`;
   pedirQuadro();
 }
 
@@ -478,8 +450,8 @@ function passo(agora, final) {
   if (final) {
     estado.atual = estado.alvo;
     estado.ativacao.fill(-Infinity);
-    sistema.transicao = 1;
-    transf.atual = transf.alvo.slice();
+    notas.exibido = notas.previsto.map(l => l.slice());
+    explorar.atual = explorar.alvo;
     if (!rank.estavel) { convergirRank(); atualizarLeituraRank(); }
   }
   // Câmera: lerp até o progresso da rolagem (salto direto com movimento reduzido)
@@ -488,16 +460,14 @@ function passo(agora, final) {
     const dif = estado.alvo - estado.atual;
     if (Math.abs(dif) > 1e-5) { estado.atual += dif * 0.12; ocupado = true; } else estado.atual = estado.alvo;
   }
-  // Estação 4: transição dos planos
-  if (sistema.transicao < 1) {
-    sistema.transicao = limitar((agora - sistema.inicioTransicao) / 700, 0, 1);
-    ocupado = true;
-  }
-  // Estação 5: matriz exibida persegue a matriz dos controles
-  for (let k = 0; k < 4; k++) {
-    const d = transf.alvo[k] - transf.atual[k];
-    if (Math.abs(d) > 1e-4) { transf.atual[k] += d * 0.18; ocupado = true; } else transf.atual[k] = transf.alvo[k];
-  }
+  // Estação 4: as barras previstas perseguem a previsão nova
+  notas.exibido.forEach((l, i) => l.forEach((v, j) => {
+    const d = notas.previsto[i][j] - v;
+    if (Math.abs(d) > 1e-3) { l[j] = v + d * 0.14; ocupado = true; } else l[j] = notas.previsto[i][j];
+  }));
+  // Estação 5: a sua seta persegue o controle
+  { const d = explorar.alvo - explorar.atual;
+    if (Math.abs(d) > 0.05) { explorar.atual += d * 0.18; ocupado = true; } else explorar.atual = explorar.alvo; }
   // Estação 6: uma iteração de potência por vez, só com a estação à vista
   const sP = estado.atual * (N - 1);
   if (Math.abs(sP - 6) < 1.5 && !rank.estavel) { passoRank(agora); ocupado = true; }
@@ -760,135 +730,110 @@ async function iniciar3d() {
     };
   }
 
-  // ---------- 4 · Unidade I: três planos, um ponto ----------
-  const estacao4 = (() => {
-    const e = novaEstacao(4, 3.6);
+  // ---------- 4 · Unidade I: matriz de notas em barras (pessoas × filmes) ----------
+  {
+    const e = novaEstacao(4, 2.7);
     const conjunto = new THREE.Group();
-    conjunto.rotation.set(0.42, -0.62, 0);
+    conjunto.rotation.set(0.55, -0.3, 0);
     e.grupo.add(conjunto);
     e.girar = conjunto;
-    e.base = { x: 0.42, y: -0.62 };
-    const ESCALA = 3; // 3 reais de preço = 1 unidade da cena; centro da cena = solução (4, 6, 10)
-    const LADO = 4.6;
-    const cores = [COR.ciano, COR.azul, COR.violeta];
-    const planos = cores.map(cor => {
+    e.base = { x: 0.55, y: -0.3 };
+    const DX = 0.95, DZ = 0.85, LADO = 0.56, ALT = 0.34; // 1 ponto de nota = ALT de altura
+    const x0 = -DX * (FILMES.length - 1) / 2, z0 = -DZ * (PESSOAS.length - 1) / 2;
+    const chao = new THREE.Mesh(new THREE.PlaneGeometry(DX * FILMES.length + 0.3, DZ * PESSOAS.length + 0.3), matBasico(COR.borda, { transparent: true, opacity: 0.35, depthWrite: false }));
+    chao.rotation.x = -Math.PI / 2; chao.position.y = -0.85;
+    conjunto.add(chao);
+    const geoCaixa = new THREE.BoxGeometry(LADO, 1, LADO);
+    const geoBorda = new THREE.EdgesGeometry(geoCaixa);
+    const barras = PESSOAS.map((_, i) => FILMES.map((_, j) => {
       const g = new THREE.Group();
-      const malha = new THREE.Mesh(new THREE.PlaneGeometry(LADO, LADO), matBasico(cor, { transparent: true, opacity: 0.16, depthWrite: false }));
-      const borda = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(LADO, LADO)), matLinha(cor, { transparent: true, opacity: 0.85 }));
-      g.add(malha, borda);
+      // "Você" fica na fileira da frente
+      g.position.set(x0 + j * DX, -0.85, z0 + (PESSOAS.length - 1 - i) * DZ);
+      const cheio = new THREE.Mesh(geoCaixa, matBasico(COR.azul, { transparent: true, opacity: 0.85 }));
+      const borda = new THREE.LineSegments(geoBorda, matLinha(COR.texto, { transparent: true, opacity: 0.5 }));
+      g.add(cheio, borda);
       conjunto.add(g);
-      return g;
-    });
-    // retas de interseção de cada par de planos
-    const retas = [0, 1, 2].map(() => {
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
-      const l = new THREE.Line(geo, matLinha(COR.texto, { transparent: true, opacity: 0.55 }));
-      conjunto.add(l);
-      return l;
-    });
-    const ponto = new THREE.Mesh(new THREE.SphereGeometry(0.12, 20, 14), matBasico(0xffffff, { transparent: true }));
-    const halo = new THREE.Mesh(new THREE.SphereGeometry(0.3, 20, 14), matBasico(COR.ciano, { transparent: true, opacity: 0.25, depthWrite: false }));
-    conjunto.add(ponto, halo);
-
-    const Z = new THREE.Vector3(0, 0, 1);
-    const centro = new THREE.Vector3(...PRECOS);
-    // plano a·v = d (preços) → em coordenadas da cena: n·u = h, com u = (v − centro) / ESCALA
-    function planoCena(a, d) {
-      const v = new THREE.Vector3(...a);
-      const len = v.length();
-      return { n: v.clone().divideScalar(len), h: (d - v.dot(centro)) / (ESCALA * len) };
-    }
-    function equacoes() {
-      const ini = sistemaAtual(!sistema.repetida), fim = sistemaAtual(sistema.repetida);
-      const t = suave(sistema.transicao);
-      return fim.A.map((r, i) => planoCena(r.map((v, j) => lerp(ini.A[i][j], v, t)), lerp(ini.b[i], fim.b[i], t)));
-    }
-    function interseccao(p1, p2) {
-      const dir = new THREE.Vector3().crossVectors(p1.n, p2.n);
-      if (dir.lengthSq() < 1e-6) return null;
-      const n11 = 1, n22 = 1, n12 = p1.n.dot(p2.n), den = n11 * n22 - n12 * n12;
-      const a = (p1.h * n22 - p2.h * n12) / den, b = (p2.h * n11 - p1.h * n12) / den;
-      return { p: p1.n.clone().multiplyScalar(a).add(p2.n.clone().multiplyScalar(b)), dir: dir.normalize() };
-    }
-    e.atualizar = (agora, final) => {
-      const eqs = equacoes();
-      eqs.forEach((q, i) => {
-        planos[i].quaternion.setFromUnitVectors(Z, q.n);
-        planos[i].position.copy(q.n).multiplyScalar(q.h);
-      });
-      [[0, 1], [1, 2], [0, 2]].forEach(([a, b], k) => {
-        const it = interseccao(eqs[a], eqs[b]);
-        retas[k].visible = !!it;
-        if (!it) return;
-        const pa = it.p.clone().addScaledVector(it.dir, -2.4), pb = it.p.clone().addScaledVector(it.dir, 2.4);
-        retas[k].geometry.attributes.position.array.set([pa.x, pa.y, pa.z, pb.x, pb.y, pb.z]);
-        retas[k].geometry.attributes.position.needsUpdate = true;
-      });
-      // o ponto brilha só quando existe solução única (det ≠ 0)
-      const vis = sistema.repetida ? 1 - suave(sistema.transicao) : suave(sistema.transicao);
-      ponto.material.opacity = vis; halo.material.opacity = 0.25 * vis;
-      const pulso = final || movimentoReduzido.matches ? 1 : 1 + 0.12 * Math.sin(agora / 380);
-      halo.scale.setScalar(pulso);
-      ponto.visible = halo.visible = vis > 0.01;
+      const topo = new THREE.Object3D(); g.add(topo);
+      const r = i === 0 ? rotulo('', 4, topo, { deslocY: -12, forte: true }) : null;
+      return { g, cheio, borda, topo, r };
+    }));
+    FILMES.forEach((f, j) => { const o = new THREE.Object3D(); o.position.set(x0 + j * DX, -0.85, z0 + (PESSOAS.length - 1) * DZ + 0.62); conjunto.add(o); rotulo(f, 4, o, { deslocY: 10 }); });
+    PESSOAS.forEach((nome, i) => { const o = new THREE.Object3D(); o.position.set(x0 - 0.75, -0.8, z0 + (PESSOAS.length - 1 - i) * DZ); conjunto.add(o); rotulo(nome, 4, o, { forte: i === 0 }); });
+    e.atualizar = () => {
+      const mostrar = passoAtual[4] >= 1; // no passo 0 os buracos ainda são "?"
+      barras.forEach((linha, i) => linha.forEach((b, j) => {
+        const conhecida = notas.R[i][j] > 0;
+        const valor = conhecida ? notas.R[i][j] : (mostrar ? notas.exibido[i][j] : 0.25);
+        const h = Math.max(0.02, valor * ALT);
+        b.g.scale.y = h; b.g.children.forEach(c => { c.position.y = 0.5; });
+        b.topo.position.y = 1;
+        b.cheio.material.color.setHex(conhecida ? (i === 0 ? COR.ciano : COR.azul) : COR.violeta);
+        b.cheio.material.opacity = conhecida ? (i === 0 ? 0.9 : 0.55) : 0.35;
+        b.borda.material.color.setHex(conhecida ? COR.texto : COR.violeta);
+        b.borda.material.opacity = conhecida ? 0.35 : 0.9;
+        if (b.r) {
+          const t = conhecida ? String(notas.R[i][j]) : (mostrar ? fmt(notas.exibido[i][j], 1) : '?');
+          if (b.r.el.textContent !== t) b.r.el.textContent = t;
+          b.r.el.style.color = conhecida ? '' : 'var(--violet)';
+        }
+      }));
       return false;
     };
-    return e;
-  })();
+  }
 
-  // ---------- 5 · Unidade II: grade + nave sob uma matriz ----------
+  // ---------- 5 · Unidade II: contas como setas; a sua seta escolhe as vizinhas ----------
   {
-    const e = novaEstacao(5, 3.4);
+    const e = novaEstacao(5, 2.0);
     const conjunto = new THREE.Group();
-    conjunto.rotation.set(-0.5, 0.32, 0);
+    conjunto.rotation.set(-0.28, 0.2, 0);
     e.grupo.add(conjunto);
     e.girar = conjunto;
-    e.base = { x: -0.5, y: 0.32 };
-    const L = 2.5, D = 0.5;
-    const segmentos = [];
-    for (let v = -L; v <= L + 1e-6; v += D) { segmentos.push([[v, -L], [v, L]], [[-L, v], [L, v]]); }
-    // grade original, tracejada ao fundo
-    const geoOrig = new THREE.BufferGeometry().setFromPoints(segmentos.flat().map(([x, y]) => new THREE.Vector3(x, y, -0.35)));
-    const orig = new THREE.LineSegments(geoOrig, new THREE.LineDashedMaterial({ color: COR.aux, dashSize: 0.08, gapSize: 0.1, transparent: true, opacity: 0.45 }));
-    orig.computeLineDistances();
-    conjunto.add(orig);
-    // grade transformada
-    const geoGrade = new THREE.BufferGeometry();
-    geoGrade.setAttribute('position', new THREE.BufferAttribute(new Float32Array(segmentos.length * 6), 3));
-    const grade = new THREE.LineSegments(geoGrade, matLinha(COR.aux, { transparent: true, opacity: 0.5 }));
-    conjunto.add(grade);
-    // colunas da matriz: para onde vão (1, 0) e (0, 1)
-    const geoEixos = new THREE.BufferGeometry();
-    geoEixos.setAttribute('position', new THREE.BufferAttribute(new Float32Array(12), 3));
-    geoEixos.setAttribute('color', new THREE.BufferAttribute(new Float32Array([
-      ...new THREE.Color(COR.ciano).toArray(), ...new THREE.Color(COR.ciano).toArray(),
-      ...new THREE.Color(COR.azul).toArray(), ...new THREE.Color(COR.azul).toArray()]), 3));
-    const eixos = new THREE.LineSegments(geoEixos, new THREE.LineBasicMaterial({ vertexColors: true }));
-    conjunto.add(eixos);
-    // nave em wireframe (x, y no plano; z para dar volume)
-    const V = [[0, 1.4, 0.05], [-1.05, -0.95, 0.05], [0, -0.5, 0.05], [1.05, -0.95, 0.05], [0, -0.25, 0.55]];
-    const A = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 0], [4, 1], [4, 2], [4, 3]];
-    const geoNave = new THREE.BufferGeometry();
-    geoNave.setAttribute('position', new THREE.BufferAttribute(new Float32Array(A.length * 6), 3));
-    const nave = new THREE.LineSegments(geoNave, matLinha(COR.texto));
-    conjunto.add(nave);
-    const aplicar = (m, x, y) => [m[0] * x + m[1] * y, m[2] * x + m[3] * y];
+    e.base = { x: -0.28, y: 0.2 };
+    const plano = new THREE.Group();
+    plano.position.set(-1.25, -1.25, 0); // origem dos eixos no canto inferior esquerdo
+    conjunto.add(plano);
+    const EIXO = 2.7;
+    const eixos = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints([[0, 0], [EIXO, 0], [0, 0], [0, EIXO]].map(([x, y]) => new THREE.Vector3(x, y, 0))), matLinha(COR.aux, { transparent: true, opacity: 0.6 }));
+    plano.add(eixos);
+    const ex = new THREE.Object3D(); ex.position.set(EIXO, 0, 0); plano.add(ex); rotulo('esporte →', 5, ex, { deslocY: 14 });
+    const ey = new THREE.Object3D(); ey.position.set(0, EIXO, 0); plano.add(ey); rotulo('↑ humor', 5, ey, { deslocY: -12 });
+    const rad = g => g * Math.PI / 180;
+    const seta = (cor, larg) => { const m = barra(0, 0, 1, 0, larg, matBasico(cor, { transparent: true })); const g = new THREE.Group(); g.add(m); plano.add(g); return { g, m }; };
+    const contas = CONTAS.map(c => {
+      const s = seta(COR.aux, 0.03);
+      s.g.rotation.z = rad(c.ang); s.g.scale.x = c.tam; s.m.position.x = 0.5; s.m.scale.x = 1 / (1 + 0.03);
+      const ponta = new THREE.Mesh(new THREE.CircleGeometry(0.07, 20), matBasico(COR.aux));
+      ponta.position.set(Math.cos(rad(c.ang)) * c.tam, Math.sin(rad(c.ang)) * c.tam, 0.01);
+      plano.add(ponta);
+      const o = new THREE.Object3D(); o.position.copy(ponta.position); plano.add(o);
+      const r = rotulo(c.nome, 5, o, { deslocY: -14 });
+      return { ...s, ponta, r };
+    });
+    const voce = seta(COR.ciano, 0.07);
+    voce.m.position.x = 0.5; voce.g.scale.x = 1.8; voce.g.position.z = 0.02;
+    const pontaVoce = new THREE.Object3D(); plano.add(pontaVoce);
+    rotulo('você', 5, pontaVoce, { deslocY: 14, forte: true });
+    // arco do ângulo entre você e a conta mais alinhada
+    const geoArco = new THREE.BufferGeometry();
+    geoArco.setAttribute('position', new THREE.BufferAttribute(new Float32Array(25 * 3), 3));
+    const arco = new THREE.Line(geoArco, matLinha(COR.violeta));
+    plano.add(arco);
     e.atualizar = () => {
-      const m = transf.atual;
-      const pg = geoGrade.attributes.position.array;
-      segmentos.forEach(([a, b], k) => {
-        const [ax, ay] = aplicar(m, ...a), [bx, by] = aplicar(m, ...b);
-        pg.set([ax, ay, 0, bx, by, 0], k * 6);
+      const a = explorar.atual;
+      voce.g.rotation.z = rad(a);
+      pontaVoce.position.set(Math.cos(rad(a)) * 1.8, Math.sin(rad(a)) * 1.8, 0);
+      const cos = CONTAS.map(c => Math.cos(rad(c.ang - a)));
+      const ordem = CONTAS.map((_, k) => k).sort((p, q) => cos[q] - cos[p]);
+      contas.forEach((c, k) => {
+        const pos = ordem.indexOf(k), dentro = pos < 2;
+        const cor = dentro ? COR.azul : COR.aux;
+        c.m.material.color.setHex(cor); c.m.material.opacity = dentro ? 1 : 0.45;
+        c.ponta.material.color.setHex(cor);
+        c.r.el.style.color = dentro ? 'var(--paper)' : '';
       });
-      geoGrade.attributes.position.needsUpdate = true;
-      geoEixos.attributes.position.array.set([0, 0, 0.02, m[0], m[2], 0.02, 0, 0, 0.02, m[1], m[3], 0.02]);
-      geoEixos.attributes.position.needsUpdate = true;
-      const pn = geoNave.attributes.position.array;
-      A.forEach(([i, j], k) => {
-        const [ax, ay] = aplicar(m, V[i][0], V[i][1]), [bx, by] = aplicar(m, V[j][0], V[j][1]);
-        pn.set([ax, ay, V[i][2], bx, by, V[j][2]], k * 6);
-      });
-      geoNave.attributes.position.needsUpdate = true;
+      const melhor = CONTAS[ordem[0]].ang, pos = geoArco.attributes.position;
+      for (let t = 0; t < 25; t++) { const g = rad(lerp(a, melhor, t / 24)); pos.setXYZ(t, Math.cos(g) * 0.9, Math.sin(g) * 0.9, 0.02); }
+      pos.needsUpdate = true;
       return false;
     };
   }
@@ -1151,7 +1096,7 @@ async function iniciar3d() {
   canvas.addEventListener('pointercancel', soltar);
 
   medir();
-  return { desenhar, medir, estacao4, estacao6, iniciarIntro: () => { estacoes[0].introInicio = performance.now(); } };
+  return { desenhar, medir, estacao6, iniciarIntro: () => { estacoes[0].introInicio = performance.now(); } };
 }
 
 /* =====================================================================
@@ -1183,13 +1128,18 @@ window.EL_EXP = {
 async function principal() {
   prepararPassos();
   montarRanking();
-  atualizarLeituraSistema();
-  atualizarLeituraMatriz();
-  ['#girar', '#esticar', '#inclinar'].forEach(s => $(s).addEventListener('input', atualizarLeituraMatriz));
-  $('#repetir-nota').addEventListener('click', () => mudarSistema(true));
-  $('#voltar-nota').addEventListener('click', () => mudarSistema(false));
+  atualizarNotas();
+  atualizarExplorar();
+  $('#gosto').addEventListener('input', atualizarExplorar);
+  $('#notas').addEventListener('click', ev => {
+    const b = ev.target.closest('button[data-filme]');
+    if (!b || b.disabled) return;
+    const j = +b.dataset.filme;
+    notas.R[0][j] = limitar(notas.R[0][j] + +b.dataset.d, 1, 5);
+    atualizarNotas();
+    $(`#notas button[data-filme="${j}"][data-d="${b.dataset.d}"]:not(:disabled)`)?.focus({ preventScroll: true });
+  });
   $('#recomecar').addEventListener('click', reiniciarRank);
-  transf.atual = transf.alvo.slice();
   ligarNavegacao();
 
   // ?s=N abre direto em uma estação

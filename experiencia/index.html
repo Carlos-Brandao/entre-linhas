@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0b0c0d">
+<title>Entre Linhas — Experiência</title>
+<meta name="description" content="Uma viagem pelo Entre Linhas em 9 estações: o problema, o que entregamos e três casos de Álgebra Linear para mexer em 3D.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b0c0d'/%3E%3Cpath d='M24 15H16v34h8M40 15h8v34h-8' fill='none' stroke='%2363e6d5' stroke-width='5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="experiencia.css">
+<script type="module" src="experiencia.js"></script>
+</head>
+<body>
+<header class="topo">
+  <a class="marca" href="../"><span class="marca-simbolo" aria-hidden="true">[ ]</span><strong>Entre Linhas</strong></a>
+  <a class="pular" href="#s8" data-estacao="8">Pular para o conteúdo</a>
+</header>
+
+<main class="trilha" id="trilha">
+  <span class="parada" id="s0" style="top:0vh"></span>
+  <span class="parada" id="s1" style="top:100vh"></span>
+  <span class="subparada" style="top:200vh"></span>
+  <span class="subparada" style="top:300vh"></span>
+  <span class="subparada" style="top:400vh"></span>
+  <span class="parada" id="s2" style="top:500vh"></span>
+  <span class="subparada" style="top:600vh"></span>
+  <span class="subparada" style="top:700vh"></span>
+  <span class="subparada" style="top:800vh"></span>
+  <span class="subparada" style="top:900vh"></span>
+  <span class="parada" id="s3" style="top:1000vh"></span>
+  <span class="parada" id="s4" style="top:1100vh"></span>
+  <span class="subparada" style="top:1200vh"></span>
+  <span class="subparada" style="top:1300vh"></span>
+  <span class="subparada" style="top:1400vh"></span>
+  <span class="parada" id="s5" style="top:1500vh"></span>
+  <span class="subparada" style="top:1600vh"></span>
+  <span class="subparada" style="top:1700vh"></span>
+  <span class="subparada" style="top:1800vh"></span>
+  <span class="parada" id="s6" style="top:1900vh"></span>
+  <span class="subparada" style="top:2000vh"></span>
+  <span class="subparada" style="top:2100vh"></span>
+  <span class="subparada" style="top:2200vh"></span>
+  <span class="parada" id="s7" style="top:2300vh"></span>
+  <span class="parada" id="s8" style="top:2400vh"></span>
+
+  <div class="palco" id="palco">
+    <canvas id="cena" aria-hidden="true"></canvas>
+    <div class="rotulos" id="rotulos" aria-hidden="true"></div>
+
+    <!-- 0 · Quem somos -->
+    <section class="estacao" data-i="0" aria-labelledby="t0" tabindex="-1">
+      <div class="texto">
+        <p class="eyebrow">Quem somos</p>
+        <h1 id="t0">Entre Linhas</h1>
+        <p class="assinatura">Da teoria à prática</p>
+        <p>Projeto de extensão de estudantes de Ciência da Computação da UNIFOR.</p>
+        <ul class="nomes">
+          <li>Luiz Roberto Chaves de Tillio</li>
+          <li>Carlos Henrique Fonteles</li>
+          <li>Henrique Sérgio Rocha Meneses Junior</li>
+          <li>Joao Antonio Pimentel Moura de Oliveira</li>
+        </ul>
+      </div>
+      <div class="controles">
+        <p class="dica">role para começar →</p>
+      </div>
+    </section>
+
+    <!-- 1 · O problema -->
+    <section class="estacao" data-i="1" aria-labelledby="t1" tabindex="-1">
+      <div class="texto">
+        <p class="eyebrow" id="p-eyebrow">O problema</p>
+        <h2 id="t1">A teoria chega. A aplicação, nem sempre.</h2>
+        <p id="p-corpo">A cadeira ensina vetores, matrizes e transformações com profundidade, mas quase não mostra onde isso aparece na Computação. Muita gente segue o curso sem fazer essa ligação.</p>
+      </div>
+      <div class="controles">
+        <p class="dica" id="p-dica">role para entrar no problema →</p>
+      </div>
+    </section>
+
+    <!-- 2 · O que entregamos -->
+    <section class="estacao" data-i="2" aria-labelledby="t2" tabindex="-1">
+      <div class="texto">
+        <p class="eyebrow">O que entregamos</p>
+        <h2 id="t2">Um material aberto para fechar essa lacuna.</h2>
+        <ol class="entregas">
+          <li>Documentação por unidade da ementa</li>
+          <li>33 demonstrações interativas</li>
+          <li>Quizzes e termômetro</li>
+          <li>Aula presencial e aulas gravadas</li>
+        </ol>
+        <p class="selo">ODS 4 · Educação de Qualidade</p>
+      </div>
+    </section>
+
+    <!-- 3 · Início -->
+    <section class="estacao" data-i="3" aria-labelledby="t3" tabindex="-1">
+      <div class="texto">
+        <p class="eyebrow">Início</p>
+        <h2 id="t3">Agora mexa você.</h2>
+        <p>Três unidades da cadeira, três coisas que você usa todo dia. Arraste os objetos.</p>
+      </div>
+    </section>
+
+    <!-- 4 · Unidade I -->
+    <section class="estacao" data-i="4" aria-labelledby="t4" tabindex="-1">
+      <div class="texto">
+        <p class="eyebrow">Unidade I</p>
+        <h2 id="t4">Três notas fiscais, três preços.</h2>
+        <p>Sistemas lineares: cada nota é uma equação, cada equação é um plano. Onde os três se cruzam, está a resposta.</p>
+      </div>
+      <div class="controles">
+        <ul class="equacoes" id="equacoes" aria-label="As três notas"></ul>
+        <p class="leitura" id="leitura-sistema" aria-live="polite"></p>
+        <div class="botoes">
+          <button type="button" class="btn primario" id="repetir-nota">Repetir uma nota</button>
+          <button type="button" class="btn" id="voltar-nota">Voltar</button>
+        </div>
+        <a class="link-seta" href="../#sistemas-lineares/demonstracoes">Ver a eliminação passo a passo →</a>
+      </div>
+    </section>
+
+    <!-- 5 · Unidade II -->
+    <section class="estacao" data-i="5" aria-labelledby="t5" tabindex="-1">
+      <div class="texto">
+        <p class="eyebrow">Unidade II</p>
+        <h2 id="t5">Uma matriz move o mundo do jogo.</h2>
+        <p>Transformações lineares: girar, esticar e inclinar são multiplicações por matriz.</p>
+      </div>
+      <div class="controles">
+        <div class="deslizadores">
+          <label class="deslizador"><span>girar</span><input type="range" id="girar" min="-180" max="180" step="5" value="30"><output id="girar-v" class="valor"></output></label>
+          <label class="deslizador"><span>esticar</span><input type="range" id="esticar" min="0.5" max="2" step="0.1" value="1.5"><output id="esticar-v" class="valor"></output></label>
+          <label class="deslizador"><span>inclinar</span><input type="range" id="inclinar" min="-1" max="1" step="0.1" value="0.4"><output id="inclinar-v" class="valor"></output></label>
+        </div>
+        <div class="leitura matriz" aria-live="polite"><span class="matriz-nome">M =</span><span class="matriz-corpo" id="matriz"></span></div>
+        <a class="link-seta" href="../#computacao-grafica/demonstracoes">Ver em um jogo →</a>
+      </div>
+    </section>
+
+    <!-- 6 · Unidade III -->
+    <section class="estacao" data-i="6" aria-labelledby="t6" tabindex="-1">
+      <div class="texto">
+        <p class="eyebrow">Unidade III</p>
+        <h2 id="t6">O autovetor que organiza a internet.</h2>
+        <p>Autovetores e PageRank: a importância flui pelos links até estabilizar. Esse equilíbrio é um autovetor.</p>
+      </div>
+      <div class="controles">
+        <p class="dica">toque em uma página: ela ganha um link</p>
+        <div class="ranking" id="ranking" aria-label="Ranking das 5 páginas"></div>
+        <p class="leitura pequena" id="leitura-rank" aria-live="polite"></p>
+        <div class="botoes">
+          <button type="button" class="btn" id="recomecar">Recomeçar</button>
+          <a class="link-seta" href="../#autovalores/demonstracoes">Entender o autovetor →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · Fim -->
+    <section class="estacao" data-i="7" aria-labelledby="t7" tabindex="-1">
+      <div class="texto">
+        <p class="eyebrow">Fim</p>
+        <h2 id="t7">Tudo isso era Álgebra Linear.</h2>
+        <p>Notas fiscais, jogos e buscadores. A mesma cadeira.</p>
+        <ul class="selos">
+          <li>Unidade I ✓</li>
+          <li>Unidade II ✓</li>
+          <li>Unidade III ✓</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 8 · Continue -->
+    <section class="estacao" data-i="8" aria-labelledby="t8" tabindex="-1">
+      <div class="texto">
+        <p class="eyebrow">Continue</p>
+        <h2 id="t8">Qual é o seu ponto de partida?</h2>
+        <a class="btn primario" href="../#diagnostico">Fazer o termômetro</a>
+      </div>
+      <div class="controles">
+        <nav class="saidas" aria-label="Materiais do Entre Linhas">
+          <div class="saida larga">
+            <span class="saida-titulo">Documentação teórica</span>
+            <span class="saida-links"><a href="../#vetores-matrizes">Unidade I</a><a href="../#produto-escalar">Unidade II</a><a href="../#autovalores">Unidade III</a></span>
+          </div>
+          <a class="saida" href="../#areas">Documentação prática</a>
+          <a class="saida" href="../#areas/casos-reais">Casos reais</a>
+          <a class="saida" href="../#sistemas-lineares/quiz">Quizzes por conteúdo</a>
+          <a class="saida" href="https://www.youtube.com/@EntreLinhas314" target="_blank" rel="noopener noreferrer">Canal no YouTube <em>Aulas gravadas</em></a>
+          <a class="saida" href="../#sobre">Quem somos</a>
+        </nav>
+      </div>
+    </section>
+  </div>
+</main>
+
+<nav class="barra" aria-label="Estações">
+  <p class="barra-atual" id="barra-atual" aria-hidden="true">Quem somos</p>
+  <ol class="barra-lista">
+    <li><a href="#s0" data-estacao="0"><span class="ponto"></span><span class="rotulo-barra">Quem somos</span></a></li>
+    <li><a href="#s1" data-estacao="1"><span class="ponto"></span><span class="rotulo-barra">O problema</span></a></li>
+    <li><a href="#s2" data-estacao="2"><span class="ponto"></span><span class="rotulo-barra">O que entregamos</span></a></li>
+    <li><a href="#s3" data-estacao="3"><span class="ponto"></span><span class="rotulo-barra">Início</span></a></li>
+    <li><a href="#s4" data-estacao="4"><span class="ponto"></span><span class="rotulo-barra">Unidade I</span></a></li>
+    <li><a href="#s5" data-estacao="5"><span class="ponto"></span><span class="rotulo-barra">Unidade II</span></a></li>
+    <li><a href="#s6" data-estacao="6"><span class="ponto"></span><span class="rotulo-barra">Unidade III</span></a></li>
+    <li><a href="#s7" data-estacao="7"><span class="ponto"></span><span class="rotulo-barra">Fim</span></a></li>
+    <li><a href="#s8" data-estacao="8"><span class="ponto"></span><span class="rotulo-barra">Continue</span></a></li>
+  </ol>
+  <span class="barra-trilho" aria-hidden="true"><span class="barra-preenchida" id="barra-preenchida"></span></span>
+</nav>
+</body>
+</html>

@@ -295,5 +295,71 @@ window.EL_DEMOS=[
       "label": "MDN · matrizes e projeção WebGL",
       "url": "https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_model_view_projection"
     }
+  },
+  {
+    "id": "sistemas-retas",
+    "topic": "Sistemas lineares",
+    "title": "Dois pedidos revelam os preços",
+    "application": "A lanchonete só guardou o total de dois pedidos. Com eles, dá para descobrir o preço do hambúrguer e do suco.",
+    "connection": "Cada pedido é uma equação; a solução do sistema é o ponto onde as duas retas se cruzam. Se o determinante é zero, não há resposta única.",
+    "source": {
+      "label": "Referência · sistemas lineares",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.linalg.solve.html"
+    }
+  },
+  {
+    "id": "sistemas-gauss",
+    "topic": "Sistemas lineares",
+    "title": "Três notas fiscais, três preços",
+    "application": "Um app de controle de gastos descobre o preço de cada item só com os totais de três notas fiscais.",
+    "connection": "A eliminação gaussiana zera os coeficientes abaixo da diagonal; depois, a substituição de trás para frente revela cada incógnita.",
+    "source": {
+      "label": "Referência · eliminação gaussiana",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.linalg.solve.html"
+    }
+  },
+  {
+    "id": "sistemas-gauss-seidel",
+    "topic": "Sistemas lineares",
+    "title": "Chutar e corrigir: Gauss-Seidel",
+    "application": "Um simulador estima a temperatura ao longo de uma barra aquecida corrigindo um palpite a cada rodada, como fazem programas de engenharia com milhares de equações.",
+    "connection": "Cada ponto obedece a uma equação: sua temperatura é a média dos vizinhos. Gauss-Seidel resolve o sistema aos poucos, usando sempre o valor mais novo.",
+    "source": {
+      "label": "Referência · métodos iterativos",
+      "url": "https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method"
+    }
+  },
+  {
+    "id": "autovalores-direcao",
+    "topic": "Autovalores e autovetores",
+    "title": "A direção que não gira",
+    "application": "Ao esticar uma foto, quase toda direção entorta. Algumas só aumentam ou diminuem: são os autovetores da transformação.",
+    "connection": "Av = λv: o autovetor v mantém a direção, e o autovalor λ diz quanto ele estica. Esse é o coração do PageRank, da compressão de imagens e do PCA.",
+    "source": {
+      "label": "Referência · autovalores no NumPy",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.linalg.eig.html"
+    }
+  },
+  {
+    "id": "autovalores-markov",
+    "topic": "Autovalores e autovetores",
+    "title": "Para onde vai a audiência?",
+    "application": "Um serviço de streaming estima quantos assinantes ele e o concorrente terão no longo prazo, mês após mês.",
+    "connection": "Multiplicar pela mesma matriz várias vezes leva ao autovetor de λ = 1. Diagonalizar a matriz mostra por que: os outros autovalores encolhem a cada mês.",
+    "source": {
+      "label": "Referência · cadeias de Markov",
+      "url": "https://en.wikipedia.org/wiki/Markov_chain#Stationary_distribution_relation_to_eigenvectors_and_simplices"
+    }
+  },
+  {
+    "id": "autovalores-base",
+    "topic": "Autovalores e autovetores",
+    "title": "Dois botões alcançam a tela toda?",
+    "application": "Um jogo move o personagem com dois botões de direção. Com direções independentes, ele chega a qualquer ponto; se forem paralelas, fica preso em uma linha.",
+    "connection": "Vetores linearmente independentes formam uma base: qualquer ponto vira a·u + b·v. Se forem dependentes, o determinante é zero e parte do plano fica inalcançável.",
+    "source": {
+      "label": "Referência · base e independência linear",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.linalg.matrix_rank.html"
+    }
   }
 ];

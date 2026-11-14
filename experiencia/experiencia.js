@@ -61,15 +61,25 @@ const PASSOS = {
   ],
   5: [
     { zoom: 1 },
-    { eyebrow: 'Unidade II · a ideia', titulo: 'Setas que apontam para o mesmo lado combinam.',
-      corpo: 'Cada conta é uma seta, e a direção resume o assunto. As mais alinhadas com a sua aparecem no Explorar. Mude seu gosto.', zoom: 1 },
+    { eyebrow: 'Unidade II · a ideia · 1 de 3', titulo: 'Cada conta vira uma seta.',
+      corpo: 'A direção diz o assunto: para a direita, esporte; para cima, humor. @golsbizarros fica no meio porque mistura os dois.', zoom: 1 },
+    { eyebrow: 'Unidade II · a ideia · 2 de 3', titulo: 'Você também é uma seta.',
+      corpo: 'A sua seta aponta para a mistura de assuntos das contas que você curte e segue.', zoom: 1 },
+    { eyebrow: 'Unidade II · a ideia · 3 de 3', titulo: 'As setas mais próximas da sua aparecem no Explorar.',
+      corpo: 'Quanto menor o ângulo entre duas setas, mais parecidas elas são. Mude seu gosto e veja o Explorar mudar.', zoom: 1 },
     { eyebrow: 'Unidade II · na cadeira', titulo: 'Isso é produto escalar e ângulo entre vetores.',
       corpo: 'O cosseno do ângulo mede o alinhamento: perto de 1, recomenda. O tamanho da seta não importa, só a direção (ementa 02.02 e 02.03).', zoom: 1 },
   ],
   6: [
     { zoom: 1 },
-    { eyebrow: 'Unidade III · a ideia', titulo: 'Um link é um voto. Voto de página importante vale mais.',
-      corpo: 'A importância circula pelos links até parar de mudar. Toque em uma página para dar um link a ela.', zoom: 1 },
+    { eyebrow: 'Unidade III · a ideia · 1 de 3', titulo: 'Cada seta é um link entre páginas.',
+      corpo: 'Cinco páginas. A seta de A para C quer dizer que a página A tem um link para a página C.', zoom: 1 },
+    { eyebrow: 'Unidade III · a ideia · 2 de 3', titulo: 'Um link é um voto.',
+      corpo: 'Cada página reparte a sua importância entre as páginas para onde aponta. Quem recebe mais, cresce.', zoom: 1 },
+    { eyebrow: 'Unidade III · a ideia · 3 de 3', titulo: 'Voto de página importante vale mais.',
+      corpo: () => rank.links.length === LINKS_INICIAIS.length
+        ? 'A recebe menos links que C, mas um deles vem de C, a página mais importante. Por isso as duas quase empatam. Toque em uma página para dar um link a ela.'
+        : 'Com o novo link, a importância se redistribuiu. Toque em outra página ou recomece.', zoom: 1 },
     { eyebrow: 'Unidade III · na cadeira', titulo: 'Esse equilíbrio é um autovetor.',
       corpo: 'Repetir a mesma multiplicação até os números estabilizarem leva ao autovetor de autovalor 1 (ementa 03.03).', zoom: 1 },
   ],
@@ -117,6 +127,12 @@ function mudarPasso(i, passo) {
   passo = limitar(passo, 0, PASSOS[i].length - 1);
   if (passo === passoAtual[i]) return;
   passoAtual[i] = passo;
+  // ao chegar em "um link é um voto", a importância volta a circular do zero, para o aluno ver crescer
+  if (i === 6 && passo === 2 && !movimentoReduzido.matches && rank.exibido.length) {
+    rank.exibido = new Array(PAGINAS.length).fill(1 / PAGINAS.length);
+    rank.iteracao = 0;
+    rank.estavel = false;
+  }
   aplicarPasso(i);
   if (cena3d) cena3d.medir();
   pedirQuadro();
@@ -306,6 +322,7 @@ function montarRanking() {
 }
 
 function atualizarLeituraRank() {
+  if (partesPasso[6]) aplicarPasso(6);
   const pct = percentuais(rank.exibido);
   const ordem = PAGINAS.map((_, i) => i).sort((a, b) => rank.exibido[b] - rank.exibido[a]);
   ordem.forEach((i, pos) => {
@@ -827,22 +844,26 @@ async function iniciar3d() {
     const voce = seta(COR.ciano, 0.07);
     voce.m.position.x = 0.5; voce.g.scale.x = 1.8; voce.g.position.z = 0.02;
     const pontaVoce = new THREE.Object3D(); plano.add(pontaVoce);
-    rotulo('você', 5, pontaVoce, { deslocY: 14, forte: true });
+    const rotuloVoce = rotulo('você', 5, pontaVoce, { deslocY: 14, forte: true });
     // arco do ângulo entre você e a conta mais alinhada
     const geoArco = new THREE.BufferGeometry();
     geoArco.setAttribute('position', new THREE.BufferAttribute(new Float32Array(25 * 3), 3));
     const arco = new THREE.Line(geoArco, matLinha(COR.violeta));
     plano.add(arco);
     e.atualizar = () => {
-      const a = explorar.atual;
+      const a = explorar.atual, p = passoAtual[5];
+      const comVoce = p !== 1, comVizinhas = p === 0 || p >= 3; // passo 1: só as contas; passo 2: entra a sua seta
+      voce.g.visible = comVoce; // invisível de verdade: uma malha transparente ainda encobriria as setas atrás dela
+      rotuloVoce.fator = () => (passoAtual[5] !== 1 ? 1 : 0);
+      arco.visible = comVizinhas;
       voce.g.rotation.z = rad(a);
       pontaVoce.position.set(Math.cos(rad(a)) * 1.8, Math.sin(rad(a)) * 1.8, 0);
       const cos = CONTAS.map(c => Math.cos(rad(c.ang - a)));
       const ordem = CONTAS.map((_, k) => k).sort((p, q) => cos[q] - cos[p]);
       contas.forEach((c, k) => {
-        const pos = ordem.indexOf(k), dentro = pos < 2;
+        const pos = ordem.indexOf(k), dentro = comVizinhas && pos < 2;
         const cor = dentro ? COR.azul : COR.aux;
-        c.m.material.color.setHex(cor); c.m.material.opacity = dentro ? 1 : 0.45;
+        c.m.material.color.setHex(cor); c.m.material.opacity = dentro || !comVizinhas ? 1 : 0.45;
         c.ponta.material.color.setHex(cor);
         c.r.el.style.color = dentro ? 'var(--paper)' : '';
       });
@@ -885,7 +906,8 @@ async function iniciar3d() {
     const Y = new THREE.Vector3(0, 1, 0);
     let particulas = null;
     const POR_ARESTA = 3;
-    function raio(k) { return 0.16 + 1.25 * rank.exibido[k]; }
+    // no passo 1 só importam os links: todas as páginas do mesmo tamanho
+    function raio(k) { return 0.16 + 1.25 * (passoAtual[6] === 1 ? 1 / PAGINAS.length : rank.exibido[k]); }
     function reconstruirArestas() {
       arestas.clear();
       if (particulas) { conjunto.remove(particulas); particulas.geometry.dispose(); }
@@ -908,7 +930,7 @@ async function iniciar3d() {
       nos.forEach((m, k) => {
         const r = raio(k);
         m.scale.setScalar(r);
-        m.material.color.setHex(k === maior ? COR.ciano : COR.azul);
+        m.material.color.setHex(k === maior && passoAtual[6] !== 1 ? COR.ciano : COR.azul);
         m.userData.ancora.position.copy(posicoes[k]);
       });
       arestas.children.forEach(g => {
@@ -919,7 +941,7 @@ async function iniciar3d() {
       });
       // partículas correm pelos links, mais rápido saindo das páginas mais importantes
       const semMovimento = movimentoReduzido.matches;
-      particulas.visible = !semMovimento;
+      particulas.visible = !semMovimento && passoAtual[6] !== 1;
       if (!semMovimento) {
         const arr = particulas.geometry.attributes.position.array;
         const out = saidas(rank.links);
@@ -1100,7 +1122,7 @@ async function iniciar3d() {
   const soltar = ev => {
     if (!arrasto || ev.pointerId !== arrasto.id) return;
     const toque = Math.hypot(ev.clientX - arrasto.x0, ev.clientY - arrasto.y0) < 8 && performance.now() - arrasto.t < 600;
-    if (ev.type === 'pointerup' && toque && arrasto.est === 6) {
+    if (ev.type === 'pointerup' && toque && arrasto.est === 6 && passoAtual[6] >= 3) {
       const k = estacao6.noEmTela(ev.clientX, ev.clientY);
       if (k >= 0) adicionarLink(k);
     }

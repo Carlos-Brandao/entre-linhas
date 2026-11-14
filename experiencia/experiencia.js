@@ -50,8 +50,12 @@ const PASSOS = {
   ],
   4: [
     { zoom: 1 },
-    { eyebrow: 'Unidade I · a ideia', titulo: 'Notas conhecidas preenchem as que faltam.',
-      corpo: 'Cada linha é uma pessoa, cada coluna um filme. A conta completa os buracos, em violeta. Mude uma nota sua.', zoom: 1 },
+    { eyebrow: 'Unidade I · a ideia · 1 de 3', titulo: 'Uma tabela de notas cheia de buracos.',
+      corpo: 'Cada linha é uma pessoa, cada coluna um filme. O “?” é um filme que a pessoa ainda não viu.', zoom: 1 },
+    { eyebrow: 'Unidade I · a ideia · 2 de 3', titulo: 'Quem tem o gosto parecido com o seu?',
+      corpo: () => `Compare as cores das linhas. A sua e a de ${PESSOAS[notas.parecida]} são as mais parecidas: notas altas e baixas nos mesmos filmes.`, zoom: 1 },
+    { eyebrow: 'Unidade I · a ideia · 3 de 3', titulo: 'O padrão das notas preenche os buracos.',
+      corpo: () => `A conta completa cada “?” seguindo quem tem gosto parecido. Para você, a melhor aposta é ${FILMES[notas.sugestao]}. Mude suas notas e veja a sugestão mudar.`, zoom: 1 },
     { eyebrow: 'Unidade I · na cadeira', titulo: 'Isso é matriz e mínimos quadrados.',
       corpo: 'A tabela é uma matriz. Completar os buracos com o menor erro é o método dos mínimos quadrados, o mesmo da regressão (ementa 01.01 e 01.08).', zoom: 1 },
   ],
@@ -102,9 +106,10 @@ function aplicarPasso(i) {
   const ultimo = passo === lista.length - 1;
   el.eyebrow.textContent = m.eyebrow;
   el.titulo.textContent = m.titulo;
-  el.corpo.textContent = m.corpo;
+  el.corpo.textContent = typeof m.corpo === 'function' ? m.corpo() : m.corpo;
   el.dica.textContent = passo === 0 ? 'role para entrar →' : ultimo ? 'role para seguir →' : 'continue rolando →';
   el.sec.dataset.fase = passo === 0 ? 'visao' : ultimo ? 'fim' : 'dentro';
+  el.sec.dataset.passo = passo;
 }
 
 function mudarPasso(i, passo) {
@@ -122,7 +127,7 @@ function mudarPasso(i, passo) {
 const PESSOAS = ['Você', 'Ana', 'Bia', 'Caio'];
 const FILMES = ['Heróis', 'Corrida', 'Humor', 'Amor', 'Terror'];
 const NOTAS_INICIAIS = [[5, 0, 2, 0, 1], [5, 5, 1, 2, 0], [1, 2, 5, 5, 0], [4, 0, 2, 1, 5]];
-const notas = { R: NOTAS_INICIAIS.map(l => l.slice()), previsto: [], exibido: [] };
+const notas = { R: NOTAS_INICIAIS.map(l => l.slice()), previsto: [], exibido: [], parecida: 1, sugestao: 1 };
 
 // Fatoração de matrizes por mínimos quadrados alternados (posto 2, com regularização):
 // procura U e V tais que nota ≈ média + U[pessoa] · V[filme] nas notas conhecidas.
@@ -153,8 +158,19 @@ function atualizarNotas() {
   const voce = notas.R[0];
   $('#notas').innerHTML = voce.map((v, j) => v ? `<div class="nota"><button type="button" data-filme="${j}" data-d="-1" aria-label="Baixar sua nota de ${FILMES[j]}" ${v <= 1 ? 'disabled' : ''}>−</button><span>${FILMES[j]}<b>${v}</b></span><button type="button" data-filme="${j}" data-d="1" aria-label="Subir sua nota de ${FILMES[j]}" ${v >= 5 ? 'disabled' : ''}>+</button></div>` : '').join('');
   const faltam = voce.map((v, j) => (v ? null : j)).filter(j => j !== null).sort((a, b) => notas.previsto[0][b] - notas.previsto[0][a]);
-  $('#leitura-notas').innerHTML = 'Você não viu: ' + faltam.map(j => `${FILMES[j]} <span class="previsto">${fmt(notas.previsto[0][j], 1)}</span>`).join(' · ') +
-    ` <span class="ok">→ sugere ${FILMES[faltam[0]]}</span>`;
+  notas.sugestao = faltam[0];
+  // pessoa com o gosto mais parecido: maior correlação entre a linha dela e a sua na tabela completa
+  const centrar = l => { const m = l.reduce((a, b) => a + b, 0) / l.length; return l.map(v => v - m); };
+  const eu = centrar(notas.previsto[0]);
+  let melhor = -Infinity;
+  notas.previsto.forEach((l, i) => {
+    if (!i) return;
+    const o = centrar(l), cor = eu.reduce((a, v, k) => a + v * o[k], 0) / (Math.hypot(...eu) * Math.hypot(...o) || 1);
+    if (cor > melhor) { melhor = cor; notas.parecida = i; }
+  });
+  $('#leitura-notas').innerHTML = `Gosto mais parecido com o seu: <span class="ok">${PESSOAS[notas.parecida]}</span><br>Sugestão: ` +
+    faltam.map((j, k) => `${k ? '' : '<span class="ok">'}${FILMES[j]}${k ? '' : '</span>'} <span class="previsto">${fmt(notas.previsto[0][j], 1)}</span>`).join(' · ');
+  if (partesPasso[4]) aplicarPasso(4);
   pedirQuadro();
 }
 
@@ -730,53 +746,52 @@ async function iniciar3d() {
     };
   }
 
-  // ---------- 4 · Unidade I: matriz de notas em barras (pessoas × filmes) ----------
+  // ---------- 4 · Unidade I: a tabela de notas (pessoas × filmes), de frente para a câmera ----------
   {
-    const e = novaEstacao(4, 2.7);
-    const conjunto = new THREE.Group();
-    conjunto.rotation.set(0.55, -0.3, 0);
-    e.grupo.add(conjunto);
-    e.girar = conjunto;
-    e.base = { x: 0.55, y: -0.3 };
-    const DX = 0.95, DZ = 0.85, LADO = 0.56, ALT = 0.34; // 1 ponto de nota = ALT de altura
-    const x0 = -DX * (FILMES.length - 1) / 2, z0 = -DZ * (PESSOAS.length - 1) / 2;
-    const chao = new THREE.Mesh(new THREE.PlaneGeometry(DX * FILMES.length + 0.3, DZ * PESSOAS.length + 0.3), matBasico(COR.borda, { transparent: true, opacity: 0.35, depthWrite: false }));
-    chao.rotation.x = -Math.PI / 2; chao.position.y = -0.85;
-    conjunto.add(chao);
-    const geoCaixa = new THREE.BoxGeometry(LADO, 1, LADO);
-    const geoBorda = new THREE.EdgesGeometry(geoCaixa);
-    const barras = PESSOAS.map((_, i) => FILMES.map((_, j) => {
-      const g = new THREE.Group();
-      // "Você" fica na fileira da frente
-      g.position.set(x0 + j * DX, -0.85, z0 + (PESSOAS.length - 1 - i) * DZ);
-      const cheio = new THREE.Mesh(geoCaixa, matBasico(COR.azul, { transparent: true, opacity: 0.85 }));
-      const borda = new THREE.LineSegments(geoBorda, matLinha(COR.texto, { transparent: true, opacity: 0.5 }));
-      g.add(cheio, borda);
-      conjunto.add(g);
-      const topo = new THREE.Object3D(); g.add(topo);
-      const r = i === 0 ? rotulo('', 4, topo, { deslocY: -12, forte: true }) : null;
-      return { g, cheio, borda, topo, r };
+    const e = novaEstacao(4, 2.65);
+    const CW = 0.82, CH = 0.62, X0 = -1.19, Y0 = 0.72; // célula e canto da tabela
+    const cx = j => X0 + j * CW, cy = i => Y0 - i * CH;
+    const geoCel = new THREE.PlaneGeometry(CW - 0.07, CH - 0.07);
+    const moldura = (w, h, cor) => {
+      const pts = [[-w / 2, -h / 2], [w / 2, -h / 2], [w / 2, h / 2], [-w / 2, h / 2]].map(([x, y]) => new THREE.Vector3(x, y, 0.03));
+      const l = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), matLinha(cor, { transparent: true }));
+      e.grupo.add(l);
+      return l;
+    };
+    const celulas = PESSOAS.map((_, i) => FILMES.map((_, j) => {
+      const m = new THREE.Mesh(geoCel, matBasico(COR.ciano, { transparent: true, depthTest: false, depthWrite: false }));
+      m.position.set(cx(j), cy(i), 0);
+      e.grupo.add(m);
+      const r = rotulo('', 4, m);
+      r.el.classList.add('celula');
+      return { m, r };
     }));
-    FILMES.forEach((f, j) => { const o = new THREE.Object3D(); o.position.set(x0 + j * DX, -0.85, z0 + (PESSOAS.length - 1) * DZ + 0.62); conjunto.add(o); rotulo(f, 4, o, { deslocY: 10 }); });
-    PESSOAS.forEach((nome, i) => { const o = new THREE.Object3D(); o.position.set(x0 - 0.75, -0.8, z0 + (PESSOAS.length - 1 - i) * DZ); conjunto.add(o); rotulo(nome, 4, o, { forte: i === 0 }); });
+    FILMES.forEach((f, j) => { const o = new THREE.Object3D(); o.position.set(cx(j), cy(0) + CH * 0.85, 0); e.grupo.add(o); rotulo(f, 4, o).el.classList.add('mini'); });
+    const nomes = PESSOAS.map((nome, i) => { const o = new THREE.Object3D(); o.position.set(X0 - CW * 0.98, cy(i), 0); e.grupo.add(o); return rotulo(nome, 4, o, { forte: true }); });
+    const larguraLinha = FILMES.length * CW + 0.04;
+    const molduraVoce = moldura(larguraLinha, CH + 0.02, COR.ciano);
+    molduraVoce.position.set(cx(2), cy(0), 0);
+    const molduraParecida = moldura(larguraLinha, CH + 0.02, COR.azul);
+    const molduraSugestao = moldura(CW + 0.02, CH + 0.02, COR.texto);
     e.atualizar = () => {
-      const mostrar = passoAtual[4] >= 1; // no passo 0 os buracos ainda são "?"
-      barras.forEach((linha, i) => linha.forEach((b, j) => {
+      const p = passoAtual[4];
+      const preenchido = p >= 3; // nos primeiros passos os buracos ainda são "?"
+      celulas.forEach((linha, i) => linha.forEach((c, j) => {
         const conhecida = notas.R[i][j] > 0;
-        const valor = conhecida ? notas.R[i][j] : (mostrar ? notas.exibido[i][j] : 0.25);
-        const h = Math.max(0.02, valor * ALT);
-        b.g.scale.y = h; b.g.children.forEach(c => { c.position.y = 0.5; });
-        b.topo.position.y = 1;
-        b.cheio.material.color.setHex(conhecida ? (i === 0 ? COR.ciano : COR.azul) : COR.violeta);
-        b.cheio.material.opacity = conhecida ? (i === 0 ? 0.9 : 0.55) : 0.35;
-        b.borda.material.color.setHex(conhecida ? COR.texto : COR.violeta);
-        b.borda.material.opacity = conhecida ? 0.35 : 0.9;
-        if (b.r) {
-          const t = conhecida ? String(notas.R[i][j]) : (mostrar ? fmt(notas.exibido[i][j], 1) : '?');
-          if (b.r.el.textContent !== t) b.r.el.textContent = t;
-          b.r.el.style.color = conhecida ? '' : 'var(--violet)';
-        }
+        const valor = conhecida ? notas.R[i][j] : notas.exibido[i][j];
+        // a intensidade da cor é a nota: linhas com cores parecidas têm gosto parecido
+        c.m.material.color.setHex(conhecida ? COR.ciano : COR.violeta);
+        c.m.material.opacity = conhecida || preenchido ? 0.1 + 0.16 * valor : 0.08;
+        const t = conhecida ? String(valor) : (preenchido ? fmt(valor, 1) : '?');
+        if (c.r.el.textContent !== t) c.r.el.textContent = t;
+        c.r.el.style.color = conhecida ? '' : 'var(--violet)';
       }));
+      nomes.forEach((r, i) => { r.el.style.color = i === 0 ? 'var(--cyan)' : (p >= 2 && i === notas.parecida ? 'var(--blue)' : 'var(--gray)'); });
+      molduraVoce.material.opacity = p >= 1 ? 1 : 0;
+      molduraParecida.position.set(cx(2), cy(notas.parecida), 0);
+      molduraParecida.material.opacity = p >= 2 ? 1 : 0;
+      molduraSugestao.position.set(cx(notas.sugestao), cy(0), 0.01);
+      molduraSugestao.material.opacity = preenchido ? 1 : 0;
       return false;
     };
   }

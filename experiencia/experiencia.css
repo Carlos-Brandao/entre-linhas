@@ -34,7 +34,7 @@ p{margin:0 0 12px}
 .pular:hover{color:var(--paper)}
 
 /* ---------- Trilha e palco ---------- */
-.trilha{position:relative;height:2200vh;height:calc(2100vh + 100dvh)}
+.trilha{position:relative;height:2400vh;height:calc(2300vh + 100dvh)}
 .parada,.subparada{position:absolute;left:0;width:1px;height:1px;scroll-snap-align:start}
 .palco{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;
   background:
@@ -189,3 +189,8 @@ a.saida:hover{border-color:var(--cyan)}
 .estacao.unidade[data-fase="dentro"] .controles>.links{display:none}
 .botoes.links{gap:4px 20px}
 .rotulo3d{font-size:.72rem}
+/* Unidade I: os controles só entram quando a tabela já foi explicada */
+.estacao[data-i="4"]:is([data-passo="1"],[data-passo="2"]) .controles>:not(.dica-passo){display:none}
+.rotulo3d.celula{font-size:.86rem;font-weight:600;color:var(--paper)}
+.rotulo3d{user-select:none;-webkit-user-select:none;pointer-events:none}
+.rotulo3d.mini{font-size:.62rem;letter-spacing:-.02em}

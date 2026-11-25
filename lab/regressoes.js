@@ -329,10 +329,10 @@
 
   function polyMath(api,points,degree,variable,value,result,unit){
     const c=rawCoefficients(points,degree),digits=v=>Math.abs(v)<.01?5:2;
-    const formula=degree===1?`ŷ = a + b·${variable}`:`ŷ = a + b·${variable} + c·${variable}²`;
-    return `<p style="margin:0">${formula}</p>`+api.matrix([c.map(v=>fmt(v,digits(v)))],{colLabels:['a','b','c'].slice(0,degree+1)})+
+    const formula=degree===1?`ŷ = b + w₁·${variable}`:`ŷ = b + w₁·${variable} + w₂·${variable}²`;
+    return `<p style="margin:0">${formula}</p>`+api.matrix([c.map(v=>fmt(v,digits(v)))],{colLabels:['b','w₁','w₂'].slice(0,degree+1)})+
       `<p>${variable} = ${hot(fmt(value,variable==='t'?1:0))} → ${hot(fmt(result,0)+' '+unit)}</p>`+
-      `<p class="muted">${degree===1?'Só reta: sem o termo ao quadrado, ela não dobra.':'O termo ao quadrado (c) é o que dobra a curva.'}</p>`;
+      `<p class="muted">${degree===1?'Só reta: sem o termo ao quadrado, ela não dobra.':'O termo ao quadrado (w₂) é o que dobra a curva.'}</p>`;
   }
   registry.register({
     id:'polinomial-trajetoria',topic:'Regressão polinomial',title:'Por onde a bola vai passar?',
@@ -377,7 +377,7 @@
       let degree=2,model=polynomial(train,degree),showValidation=false;
       const draw=(predict=model.predict)=>{const c=plot(api,{title:'Previsão de bateria e novas medidas',xlabel:'Tempo de uso (h)',ylabel:'Bateria restante (%)',xunit:'h',yunit:'%',points:train,validation,predict,showValidation});label(api,c.svg,showValidation?'● Anteriores   × Novas medidas':'● Medidas anteriores',{x:c.box.left,y:16});
         const oldError=rmse(train,model.predict),newError=rmse(validation,model.predict);
-        api.math('grau '+degree+' · '+(degree+1)+' coeficientes',`<p style="margin:0">${degree===1?'ŷ = a + b·h':degree===2?'ŷ = a + b·h + c·h²':'ŷ = a + b·h + … + j·h⁹'}</p>`+
+        api.math('grau '+degree+' · '+(degree+1)+' coeficientes',`<p style="margin:0">${degree===1?'ŷ = b + w₁·h':degree===2?'ŷ = b + w₁·h + w₂·h²':'ŷ = b + w₁·h + … + w₉·h⁹'}</p>`+
           api.matrix([[fmt(oldError,1),showValidation?fmt(newError,1):'?']],{colLabels:['antigas','novas'],mark:(_,j)=>j&&showValidation?'on':''})+
           `<p class="muted">Erro médio (pontos de %). ${degree===9?'Erro quase zero nas antigas não garante acerto nas novas.':'Mais coeficientes nem sempre reduzem o erro nas novas.'}</p>`);};
       const status=()=>api.status(degree===9?(showValidation?'A curva exagerada passa pelas medidas antigas, mas se afasta das novas.':'A curva exagerada passa por todos os pontos; veja se acerta as próximas medidas.'):(degree===1?'A bateria não cai sempre no mesmo ritmo: uma reta simplifica demais.':(showValidation?'A curva simples acompanha melhor as novas medidas de bateria.':'A curva simples prevê cerca de '+fmt(model.predict(5),0)+'% de bateria após 5 horas.')));
